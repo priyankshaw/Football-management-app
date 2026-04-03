@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Mobile-only: set viewport -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Cricket Management App - Mobile</title>
+  <style>
+    /* Base Styles */
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #e6f0fa;
+      color: #03396c;
+      padding-bottom: 20px;
+    }
+    /* Fixed header for navigation */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #03396c;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      z-index: 1000;
+    }
+    header button {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      padding: 5px 10px;
+    }
+    header button.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    /* Page content – add top margin equal to header height */
+    main {
+      margin-top: 60px;
+      padding: 10px;
+    }
+    section {
+      display: none;
+    }
+    section.active {
+      display: block;
+    }
+    h2, h3 {
+      text-align: center;
+      margin: 10px 0;
+    }
+    /* Forms */
+    form {
+      display: flex;
+      flex-direction: column;
+      margin: 10px 0;
+    }
+    form input, form select, form button {
+      margin: 5px 0;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #03396c;
+      border-radius: 4px;
+    }
+    form button {
+      background: #03396c;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 320px;
+    }
+    table, th, td {
+      border: 1px solid #80bfff;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+      font-size: 14px;
+    }
+    /* Modal Styles */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(3,57,108,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .modal-content {
+      background: #e6f0fa;
+      width: 90%;
+      max-width: 400px;
+      padding: 20px;
+      border-radius: 4px;
+      position: relative;
+    }
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    /* Award Details */
+    .award-details {
+      background: #f0f8ff;
+      padding: 5px;
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+    .award-details p {
+      margin: 3px 0;
+      font-size: 14px;
+    }
+    /* List Styling */
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    li {
+      padding: 8px;
+      border: 1px solid #80bfff;
+      border-radius: 4px;
+      margin: 5px 0;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Fixed Header Navigation -->
+  <header>
+    <button data-target="teamsSection" class="active">Teams</button>
+    <button data-target="rankingSection">Rankings</button>
+    <button data-target="awardsSection">Awards</button>
+  </header>
+
+  <!-- Main content area -->
+  <main>
+    <!-- Teams Section -->
+    <section id="teamsSection" class="active">
+      <h2>Team Management</h2>
+      <!-- Add Team -->
+      <form id="teamForm">
+        <input type="text" id="teamName" placeholder="Team Name" required />
+        <select id="teamType" required>
+          <option value="">Select Type</option>
+          <option value="International">International</option>
+          <option value="IPL">IPL</option>
+        </select>
+        <button type="submit">Add Team</button>
+      </form>
+      <!-- Add Trophy to Team -->
+      <form id="trophyForm">
+        <select id="teamSelect" required>
+          <option value="">Select Team</option>
+        </select>
+        <input type="text" id="trophyName" placeholder="Trophy Name" required />
+        <input type="number" id="trophyYear" placeholder="Year" required />
+        <button type="submit">Add Trophy</button>
+      </form>
+      <!-- Filter Teams -->
+      <div>
+        <label for="filterType">Filter Teams:</label>
+        <select id="filterType">
+          <option value="All">All</option>
+          <option value="International">International</option>
+          <option value="IPL">IPL</option>
+        </select>
+      </div>
+      <div class="table-container">
+        <table id="teamsTable">
+          <thead>
+            <tr>
+              <th>Team Name</th>
+              <th>Type</th>
+              <th>Trophies</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Rankings Section -->
+    <section id="rankingSection">
+      <h2>Player Rankings</h2>
+      <form id="playerForm">
+        <input type="text" id="playerName" placeholder="Player Name" required />
+        <input type="text" id="playerCountry" placeholder="Country" required />
+        <input type="number" id="playerRuns" placeholder="Runs" required />
+        <input type="number" id="fifties" placeholder="50s" required />
+        <input type="number" id="hundreds" placeholder="100s" required />
+        <input type="number" id="twoHundreds" placeholder="200s" required />
+        <button type="submit">Add Player</button>
+      </form>
+      <button id="resetRankings">Reset Rankings Display</button>
+      <div class="table-container">
+        <table id="rankingTable">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th>Country</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p style="text-align:center;">Tap a player row to update stats.</p>
+    </section>
+
+    <!-- Awards Section -->
+    <section id="awardsSection">
+      <h2>Awards</h2>
+      <!-- ICC Awards -->
+      <div>
+        <h3>ICC Player of the Year</h3>
+        <form id="iccAwardForm">
+          <input type="text" id="iccAwardPlayer" placeholder="Player Name" required />
+          <input type="number" id="iccAwardYear" placeholder="Season Year" required />
+          <button type="submit">Add Award</button>
+        </form>
+        <ul id="iccAwardList"></ul>
+      </div>
+      <!-- IPL Awards -->
+      <div>
+        <h3>IPL Orange Cap</h3>
+        <form id="orangeCapForm">
+          <input type="text" id="orangeCapPlayer" placeholder="Player Name" required />
+          <input type="number" id="orangeCapYear" placeholder="Season Year" required />
+          <button type="submit">Add Award</button>
+        </form>
+        <ul id="orangeCapList"></ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal for Updating Player Stats -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <h3>Update Player Stats</h3>
+      <form id="updateStatsForm">
+        <input type="number" id="addRuns" placeholder="Additional Runs" required />
+        <input type="number" id="add50s" placeholder="Additional 50s" required />
+        <input type="number" id="add100s" placeholder="Additional 100s" required />
+        <input type="number" id="add200s" placeholder="Additional 200s" required />
+        <button type="submit">Update</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    /* --------------------------
+       Section Navigation
+    -------------------------- */
+    const navButtons = document.querySelectorAll('header button');
+    const sections = document.querySelectorAll('main section');
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Update active button
+        navButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // Show target section only
+        const target = btn.getAttribute('data-target');
+        sections.forEach(sec => {
+          if (sec.id === target) sec.classList.add('active');
+          else sec.classList.remove('active');
+        });
+      });
+    });
+
+    /* --------------------------
+       Data Arrays
+    -------------------------- */
+    const teams = [];
+    const players = [];
+    const iccAwards = [];       // { player, winYears: [] }
+    const orangeCapAwards = []; // { player, winYears: [] }
+    let currentPlayerForUpdate = null;
+
+    /* --------------------------
+       TEAMS SECTION
+    -------------------------- */
+    const teamForm = document.getElementById('teamForm');
+    const trophyForm = document.getElementById('trophyForm');
+    const teamsTableBody = document.querySelector('#teamsTable tbody');
+    const teamSelect = document.getElementById('teamSelect');
+    const filterTypeSelect = document.getElementById('filterType');
+
+    teamForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('teamName').value.trim();
+      const type = document.getElementById('teamType').value;
+      if (!name || !type) return;
+      if (!teams.find(t => t.name.toLowerCase() === name.toLowerCase())) {
+        teams.push({ name, type, trophies: [] });
+        updateTeamsTable();
+        updateTeamSelect();
+      }
+      teamForm.reset();
+    });
+
+    trophyForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const selectedTeam = teamSelect.value;
+      const trophyName = document.getElementById('trophyName').value.trim();
+      const trophyYear = document.getElementById('trophyYear').value.trim();
+      if (!selectedTeam || !trophyName || !trophyYear) return;
+      const team = teams.find(t => t.name === selectedTeam);
+      if (team) {
+        team.trophies.push({ name: trophyName, year: trophyYear });
+        updateTeamsTable();
+      }
+      trophyForm.reset();
+    });
+
+    filterTypeSelect.addEventListener('change', updateTeamsTable);
+
+    function updateTeamsTable() {
+      teamsTableBody.innerHTML = '';
+      const filter = filterTypeSelect.value;
+      teams.forEach(team => {
+        if (filter !== "All" && team.type !== filter) return;
+        const trophiesHTML = team.trophies.map(t => `<div>${t.name} (${t.year})</div>`).join('');
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${team.name}</td><td>${team.type}</td><td>${trophiesHTML}</td>`;
+        teamsTableBody.appendChild(row);
+      });
+    }
+
+    function updateTeamSelect() {
+      teamSelect.innerHTML = '<option value="">Select Team</option>';
+      teams.forEach(team => {
+        const option = document.createElement('option');
+        option.value = team.name;
+        option.textContent = team.name;
+        teamSelect.appendChild(option);
+      });
+    }
+
+    /* --------------------------
+       RANKINGS SECTION
+    -------------------------- */
+    const playerForm = document.getElementById('playerForm');
+    const rankingTableBody = document.querySelector('#rankingTable tbody');
+    const resetRankingsBtn = document.getElementById('resetRankings');
+
+    playerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const player = {
+        name: document.getElementById('playerName').value.trim(),
+        country: document.getElementById('playerCountry').value.trim(),
+        runs: parseInt(document.getElementById('playerRuns').value) || 0,
+        fifties: parseInt(document.getElementById('fifties').value) || 0,
+        hundreds: parseInt(document.getElementById('hundreds').value) || 0,
+        twoHundreds: parseInt(document.getElementById('twoHundreds').value) || 0
+      };
+      players.push(player);
+      updateRankings();
+      playerForm.reset();
+    });
+
+    resetRankingsBtn.addEventListener('click', () => {
+      rankingTableBody.innerHTML = '';
+    });
+
+    function calculateScore(player) {
+      return player.runs + (player.fifties * 15) + (player.hundreds * 30) + (player.twoHundreds * 50);
+    }
+
+    function updateRankings() {
+      const rankingList = players.map(p => ({ ...p, score: calculateScore(p) }));
+      rankingList.sort((a, b) => b.score - a.score);
+      rankingTableBody.innerHTML = '';
+      rankingList.forEach((player, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${index + 1}</td><td>${player.name}</td><td>${player.country}</td><td>${player.score}</td>`;
+        row.addEventListener('click', () => {
+          currentPlayerForUpdate = players.find(p => p.name === player.name);
+          openModal();
+        });
+        rankingTableBody.appendChild(row);
+      });
+    }
+
+    /* --------------------------
+       MODAL FOR UPDATING PLAYER STATS
+    -------------------------- */
+    const modal = document.getElementById('modal');
+    const closeModalBtn = document.getElementById('closeModal');
+    const updateStatsForm = document.getElementById('updateStatsForm');
+
+    function openModal() {
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+      updateStatsForm.reset();
+    }
+
+    closeModalBtn.addEventListener('click', closeModal);
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    updateStatsForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!currentPlayerForUpdate) return;
+      const addRuns = parseInt(document.getElementById('addRuns').value) || 0;
+      const add50s = parseInt(document.getElementById('add50s').value) || 0;
+      const add100s = parseInt(document.getElementById('add100s').value) || 0;
+      const add200s = parseInt(document.getElementById('add200s').value) || 0;
+      currentPlayerForUpdate.runs += addRuns;
+      currentPlayerForUpdate.fifties += add50s;
+      currentPlayerForUpdate.hundreds += add100s;
+      currentPlayerForUpdate.twoHundreds += add200s;
+      updateRankings();
+      closeModal();
+    });
+
+    /* --------------------------
+       AWARDS SECTION
+    -------------------------- */
+    const iccAwardForm = document.getElementById('iccAwardForm');
+    const iccAwardList = document.getElementById('iccAwardList');
+    const orangeCapForm = document.getElementById('orangeCapForm');
+    const orangeCapList = document.getElementById('orangeCapList');
+
+    iccAwardForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const playerName = document.getElementById('iccAwardPlayer').value.trim();
+      const seasonYear = document.getElementById('iccAwardYear').value.trim();
+      if (!playerName || !seasonYear) return;
+      let award = iccAwards.find(a => a.player.toLowerCase() === playerName.toLowerCase());
+      if (!award) {
+        award = { player: playerName, winYears: [] };
+        iccAwards.push(award);
+      }
+      if (!award.winYears.includes(seasonYear)) {
+        award.winYears.push(seasonYear);
+      }
+      updateICCAwards();
+      iccAwardForm.reset();
+    });
+
+    function updateICCAwards() {
+      iccAwards.sort((a, b) => b.winYears.length - a.winYears.length);
+      iccAwardList.innerHTML = '';
+      iccAwards.forEach(award => {
+        const li = document.createElement('li');
+        li.textContent = `${award.player} - Wins: ${award.winYears.length}`;
+        li.addEventListener('click', () => toggleAwardDetails(award, li, 'ICC'));
+        iccAwardList.appendChild(li);
+      });
+    }
+
+    orangeCapForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const playerName = document.getElementById('orangeCapPlayer').value.trim();
+      const seasonYear = document.getElementById('orangeCapYear').value.trim();
+      if (!playerName || !seasonYear) return;
+      let award = orangeCapAwards.find(a => a.player.toLowerCase() === playerName.toLowerCase());
+      if (!award) {
+        award = { player: playerName, winYears: [] };
+        orangeCapAwards.push(award);
+      }
+      if (!award.winYears.includes(seasonYear)) {
+        award.winYears.push(seasonYear);
+      }
+      updateOrangeCapAwards();
+      orangeCapForm.reset();
+    });
+
+    function updateOrangeCapAwards() {
+      orangeCapAwards.sort((a, b) => b.winYears.length - a.winYears.length);
+      orangeCapList.innerHTML = '';
+      orangeCapAwards.forEach(award => {
+        const li = document.createElement('li');
+        li.textContent = `${award.player} - Wins: ${award.winYears.length}`;
+        li.addEventListener('click', () => toggleAwardDetails(award, li, 'Orange Cap'));
+        orangeCapList.appendChild(li);
+      });
+    }
+
+    function toggleAwardDetails(award, li, type) {
+      const existingDetails = li.querySelector('.award-details');
+      if (existingDetails) {
+        li.removeChild(existingDetails);
+        return;
+      }
+      const detailsDiv = document.createElement('div');
+      detailsDiv.className = 'award-details';
+      award.winYears.forEach(year => {
+        const p = document.createElement('p');
+        p.textContent = year;
+        detailsDiv.appendChild(p);
+      });
+      const addBtn = document.createElement('button');
+      addBtn.textContent = "Add New Season";
+      addBtn.style.fontSize = "14px";
+      addBtn.style.marginTop = "5px";
+      addBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const newYear = prompt("Enter new season year:");
+        if (newYear && !award.winYears.includes(newYear)) {
+          award.winYears.push(newYear);
+          detailsDiv.innerHTML = "";
+          award.winYears.forEach(y => {
+            const p = document.createElement('p');
+            p.textContent = y;
+            detailsDiv.appendChild(p);
+          });
+          detailsDiv.appendChild(addBtn);
+          if (type === 'ICC') updateICCAwards();
+          else updateOrangeCapAwards();
+        }
+      });
+      detailsDiv.appendChild(addBtn);
+      li.appendChild(detailsDiv);
+    }
+  </script>
+</body>
+</html>
