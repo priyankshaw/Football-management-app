@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>F1 Championship Manager</title>
+<style>
+:root {
+  --bg: #06060a;
+  --surface: #0d0d14;
+  --card: #111118;
+  --card2: #181820;
+  --border: #222230;
+  --border2: #333344;
+  --red: #e10600;
+  --red-hover: #ff1a1a;
+  --gold: #ffd700;
+  --gold-dim: #cca800;
+  --silver: #c0c0c0;
+  --bronze: #cd7f32;
+  --green: #20e020;
+  --blue: #00bfff;
+  --text: #ffffff;
+  --text-dim: #aab;
+  --text-dimmer: #778;
+  
+  /* Native System Fonts for Offline Support & Maximum Sharpness */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+img {
+  image-rendering: high-quality;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+/* Typography Helpers */
+.bold { font-weight: 700; }
+.black { font-weight: 900; letter-spacing: 0.5px; }
+.mono { font-family: var(--font-mono); }
+.text-sm { font-size: 13px; }
+.text-xs { font-size: 11px; }
+.uppercase { text-transform: uppercase; }
+
+/* ── Header ───────────────────────────────── */
+#header {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo {
+  font-family: var(--font-sans);
+  font-size: 22px; font-weight: 900;
+  letter-spacing: 1px; text-transform: uppercase;
+  display: flex; align-items: center;
+}
+.logo-f1 { color: var(--red); margin-right: 6px; }
+.season-badge {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+  color: var(--text-dim); letter-spacing: 1px; background: var(--surface);
+  border: 1px solid var(--border); padding: 4px 8px; border-radius: 4px;
+  margin-left: 12px; white-space: nowrap;
+}
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+/* ── Buttons ────────────────────────── */
+.btn {
+  font-family: var(--font-sans); font-weight: 700; font-size: 13px;
+  letter-spacing: 0.5px; text-transform: uppercase; border: none;
+  cursor: pointer; transition: all 0.15s ease;
+  padding: 10px 16px; border-radius: 4px; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 40px;
+}
+.btn-red { background: var(--red); color: #fff; }
+.btn-red:hover { background: var(--red-hover); }
+.btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border2); }
+.btn-outline:hover { border-color: var(--red); color: var(--red); background: rgba(225,6,0,0.05); }
+.btn-gold { background: var(--gold); color: #000; }
+.btn-gold:hover { background: #ffe600; }
+.btn-ghost { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--border2); background: var(--card2); }
+.btn-danger { background: rgba(255,85,85,0.1); color: #ff5555; border: 1px solid rgba(255,85,85,0.3); }
+.btn-danger:hover { background: #ff5555; color: #fff; border-color: #ff5555; }
+.btn-sm { padding: 6px 12px; font-size: 12px; min-height: 32px; }
+.btn-season { background: transparent; color: var(--text-dim); border: 1px solid var(--border); font-size: 12px; padding: 6px 12px; min-height: 36px; }
+.btn-season:hover { border-color: var(--red); color: var(--text); }
+.btn-icon { background: none; border: none; cursor: pointer; color: var(--text-dimmer); padding: 8px; border-radius: 4px; font-size: 14px; transition: 0.15s; }
+.btn-icon:hover { color: #ff5555; background: rgba(255,85,85,0.1); }
+
+/* ── Nav ──────────────────────────────────── */
+#nav {
+  display: flex; background: var(--surface); border-bottom: 1px solid var(--border);
+  position: sticky; top: 65px; z-index: 199;
+}
+.nav-tab {
+  font-family: var(--font-sans); font-size: 15px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; padding: 14px 20px;
+  cursor: pointer; color: var(--text-dimmer); border-bottom: 3px solid transparent;
+  transition: all 0.2s; user-select: none; flex: 1; text-align: center; white-space: nowrap;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--red); border-bottom-color: var(--red); }
+
+/* ── Main ─────────────────────────────────── */
+#main { max-width: 1000px; margin: 0 auto; padding: 32px 20px; position: relative; z-index: 1; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn 0.2s ease forwards; }
+
+/* ── Section layout ───────────────────────── */
+.section-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; gap: 16px; flex-wrap: wrap; }
+.section-title-block .red-line { width: 32px; height: 4px; background: var(--red); margin-bottom: 8px; border-radius: 2px; }
+.section-title { font-family: var(--font-sans); font-size: 26px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; line-height: 1.1; }
+.section-title .accent { color: var(--red); }
+.section-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── Sub tabs ─────────────────────────────── */
+.sub-tabs { display: flex; gap: 0; margin-bottom: 24px; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; width: fit-content; flex-wrap: wrap; }
+.sub-tab { font-family: var(--font-sans); font-size: 13px; font-weight: 700; text-transform: uppercase; padding: 12px 20px; cursor: pointer; color: var(--text-dim); background: var(--surface); border: none; transition: 0.15s; flex: 1; white-space: nowrap; }
+.sub-tab:hover { color: var(--text); background: var(--card2); }
+.sub-tab.active { background: var(--red); color: #fff; }
+
+/* ── Avatars & Flags ──────────────────────── */
+.driver-avatar, .driver-avatar-sm {
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-sans); font-weight: 800; color: #fff;
+  flex-shrink: 0; cursor: pointer; overflow: hidden; background-size: cover; background-position: center;
+  border: 1px solid var(--border2);
+}
+.driver-avatar { width: 56px; height: 56px; font-size: 20px; }
+.driver-avatar-sm { width: 40px; height: 40px; font-size: 14px; }
+.driver-avatar img, .driver-avatar-sm img { width: 100%; height: 100%; object-fit: cover; }
+.driver-avatar:hover::after { content: '📷'; position: absolute; font-size: 20px; background: rgba(0,0,0,0.5); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+
+.circuit-flag {
+  width: 48px; height: 32px; border-radius: 4px; background: var(--surface);
+  border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; cursor: pointer; overflow: hidden; color: var(--text-dimmer); font-size: 10px; font-weight: bold;
+}
+.circuit-flag img { width: 100%; height: 100%; object-fit: cover; }
+.circuit-flag:hover { border-color: var(--text); }
+
+/* ── Common Stats ─────────────────────────── */
+.driver-stats { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
+.stat-item { display: flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); padding: 8px 16px; border-radius: 4px; }
+.stat-val { font-family: var(--font-mono); font-size: 16px; font-weight: 700; color: var(--text); }
+.stat-val.gold { color: var(--gold); }
+.stat-label { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── Win history ──────────────────────────── */
+.win-history { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+.win-history-label { font-size: 11px; font-weight: 800; color: var(--text-dimmer); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
+.win-item { display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 6px; }
+.win-year { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--gold); min-width: 46px; }
+.win-type-text { flex: 1; font-size: 14px; font-weight: 600; color: var(--text-dim); }
+
+/* ── GP & Circuit Lists ───────────────────── */
+.gp-entry, .circuit-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 16px 20px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 6px; margin-bottom: 10px; cursor: pointer; transition: 0.15s; flex-wrap: wrap;
+}
+.gp-entry:hover, .circuit-card:hover { border-color: var(--border2); background: var(--surface); }
+.gp-num { font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--red); min-width: 36px; text-align: center; flex-shrink: 0; }
+.gp-info { flex: 1; min-width: 0; }
+.gp-circuit-name, .circuit-name-big { font-family: var(--font-sans); font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 12px; line-height: 1.2; }
+.gp-winner-text { font-size: 13px; font-weight: 700; color: var(--gold); margin-top: 6px; }
+.circuit-sub { font-size: 12px; font-weight: 600; color: var(--text-dim); margin-top: 6px; }
+.gp-actions, .circuit-right { display: flex; gap: 10px; align-items: center; flex-shrink: 0; margin-left: auto; }
+
+/* ── Tags ─────────────────────────────────── */
+.tag { display: inline-flex; align-items: center; font-family: var(--font-mono); font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; white-space: nowrap; }
+.tag-red { background: rgba(225,6,0,0.1); color: #ff4d4d; border: 1px solid rgba(225,6,0,0.3); }
+.tag-gold { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid rgba(255,215,0,0.3); }
+.tag-green { background: rgba(32,224,32,0.1); color: var(--green); border: 1px solid rgba(32,224,32,0.3); }
+.tag-blue { background: rgba(0,191,255,0.1); color: var(--blue); border: 1px solid rgba(0,191,255,0.3); }
+
+/* ── Modal ────────────────────────────────── */
+#modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+#modal-overlay.show { display: flex; }
+#modal-box { background: var(--bg); border: 1px solid var(--border2); border-radius: 8px; padding: 24px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; }
+.modal-title { font-size: 22px; font-weight: 800; text-transform: uppercase; color: var(--text); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); line-height: 1.2; }
+.modal-close { position: absolute; top: 16px; right: 16px; background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); font-size: 16px; cursor: pointer; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: 0.15s; }
+.modal-close:hover { color: #fff; border-color: var(--text); }
+
+/* ── Forms ────────────────────────────────── */
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 12px; font-weight: 700; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
+.form-input, .form-select { width: 100%; background: var(--surface); border: 1px solid var(--border2); color: var(--text); padding: 12px; font-family: var(--font-sans); font-size: 15px; font-weight: 600; border-radius: 4px; outline: none; transition: 0.15s; appearance: none; }
+.form-input:focus, .form-select:focus { border-color: var(--red); background: var(--card); }
+.form-select { background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23A0A0B0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 10px auto; padding-right: 30px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+.modal-actions .btn { flex: 1; min-width: 120px; }
+
+/* ── Position Grid ────────────────────────── */
+.pos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 300px; overflow-y: auto; padding-right: 4px; }
+.pos-row { display: flex; align-items: center; gap: 8px; padding: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; }
+.pos-label { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--text-dimmer); min-width: 32px; text-align: center; }
+.pos-label.p1 { color: var(--gold); }
+.pos-label.p2 { color: var(--silver); }
+.pos-label.p3 { color: var(--bronze); }
+.pos-select { flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px; font-family: var(--font-sans); font-size: 14px; font-weight: 600; border-radius: 4px; outline: none; }
+.pos-select:focus { border-color: var(--red); }
+
+/* ── Rankings / Tables ────────────────────── */
+.table-responsive { width: 100%; border: 1px solid var(--border); border-radius: 6px; background: var(--card); }
+.rank-table { width: 100%; border-collapse: collapse; }
+.rank-table th { font-size: 11px; font-weight: 800; color: var(--text-dim); padding: 16px; text-align: left; border-bottom: 1px solid var(--border2); text-transform: uppercase; background: var(--surface); letter-spacing: 0.5px; }
+.rank-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 15px; vertical-align: middle; cursor: pointer; transition: background 0.15s; }
+.rank-table tr:last-child td { border-bottom: none; }
+.rank-table tr:hover td { background: var(--surface); }
+.rank-table tr.leader td { background: rgba(255,215,0,0.03); }
+.rank-num { font-family: var(--font-mono); font-size: 16px; font-weight: 700; color: var(--text-dimmer); }
+.rank-num.r1 { color: var(--gold); }
+.rank-num.r2 { color: var(--silver); }
+.rank-num.r3 { color: var(--bronze); }
+.rank-pts { font-family: var(--font-mono); font-size: 18px; font-weight: 700; }
+.rank-pts.leader { color: var(--gold); }
+.rank-mono { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--text); }
+
+/* ── Champion Banner ──────────────────────── */
+.champ-banner { background: var(--card); border: 1px solid var(--gold-dim); border-radius: 6px; padding: 24px; margin-bottom: 32px; display: flex; align-items: center; gap: 24px; }
+.champ-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--surface); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 40px; flex-shrink: 0; overflow: hidden; }
+.champ-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.champ-label { font-size: 12px; font-weight: 800; color: var(--gold); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1px; }
+.champ-name { font-size: 28px; font-weight: 900; text-transform: uppercase; color: #fff; line-height: 1.1; margin-bottom: 8px; }
+.champ-pts { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--text-dim); }
+
+/* ── Points Panel ─────────────────────────── */
+.points-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px; margin-bottom: 24px; display: none; }
+.points-panel.open { display: block; }
+.points-panel-title { font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 16px; text-transform: uppercase; }
+.pts-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 16px; }
+.pts-cell { display: flex; flex-direction: column; gap: 4px; }
+.pts-cell label { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--text-dimmer); text-align: center; }
+.pts-cell input { width: 100%; background: var(--card); border: 1px solid var(--border2); color: var(--text); padding: 8px 4px; text-align: center; font-family: var(--font-mono); font-size: 14px; border-radius: 4px; outline: none; font-weight: 700; }
+.pts-cell input:focus { border-color: var(--red); }
+.pts-special { display: flex; gap: 16px; flex-wrap: wrap; }
+.pts-special-item { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 120px; }
+.pts-special-item label { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; }
+.pts-special-item input { background: var(--card); border: 1px solid var(--border2); color: var(--text); padding: 10px; text-align: center; font-family: var(--font-mono); font-size: 15px; font-weight: 700; border-radius: 4px; outline: none; }
+.pts-special-item input:focus { border-color: var(--red); }
+
+/* ── Modal List Items ─────────────────────── */
+.cw-row { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 8px; }
+.cw-pos { font-family: var(--font-mono); font-size: 18px; font-weight: 700; min-width: 28px; text-align: center; }
+.cw-pos.cw1 { color: var(--gold); }
+.cw-pos.cw2 { color: var(--silver); }
+.cw-pos.cw3 { color: var(--bronze); }
+.cw-name { flex: 1; font-size: 16px; font-weight: 800; text-transform: uppercase; }
+.cw-count { font-size: 13px; font-weight: 700; color: var(--text-dim); }
+
+/* ── Empty state ──────────────────────────── */
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-dimmer); background: var(--surface); border: 1px dashed var(--border2); border-radius: 6px; }
+.empty-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.5; }
+.empty-text { font-size: 15px; font-weight: 600; }
+
+/* ── Notification ─────────────────────────── */
+#save-notif { position: fixed; bottom: 24px; right: 24px; background: var(--green); color: #000; font-size: 14px; font-weight: 800; text-transform: uppercase; padding: 12px 24px; border-radius: 4px; opacity: 0; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 3000; pointer-events: none; }
+#save-notif.show { opacity: 1; transform: translateY(0); }
+
+/* ── Scrollbar ────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dimmer); }
+
+/* ── Utils ────────────────────────────────── */
+.flex { display: flex; } .gap4 { gap: 4px; } .gap8 { gap: 8px; } .gap12 { gap: 12px; } .gap16 { gap: 16px; }
+.items-center { align-items: center; } .justify-between { justify-content: space-between; }
+.flex-1 { flex: 1; } .flex-wrap { flex-wrap: wrap; }
+.mt4 { margin-top: 4px; } .mt8 { margin-top: 8px; } .mt16 { margin-top: 16px; } .mt24 { margin-top: 24px; }
+.mb8 { margin-bottom: 8px; } .mb16 { margin-bottom: 16px; }
+.w100 { width: 100%; }
+
+/* ── Mobile Overrides ─────────────────────── */
+@media (max-width: 600px) {
+  #header { padding: 12px 16px; flex-direction: column; gap: 12px; height: auto; }
+  .header-actions { width: 100%; justify-content: flex-end; }
+  
+  #nav { top: 105px; justify-content: center; }
+  .nav-tab { padding: 14px 12px; font-size: 14px; }
+  
+  #main { padding: 24px 12px; }
+  .section-title { font-size: 24px; }
+  .section-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .section-actions .btn:last-child { grid-column: span 2; }
+  
+  .sub-tabs { width: 100%; display: flex; }
+  .sub-tab { flex: 1; text-align: center; padding: 12px 10px; font-size: 12px; }
+
+  /* Squeeze Table on Mobile */
+  .rank-table th, .rank-table td { padding: 12px 8px; font-size: 13px; }
+  .rank-pts { font-size: 16px; }
+
+  .gp-entry, .circuit-card { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .gp-circuit-name, .circuit-name-big { font-size: 18px; }
+  .gp-actions, .circuit-right { width: 100%; justify-content: flex-start; margin-left: 0; padding-top: 12px; border-top: 1px solid var(--border); }
+  
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+  .pos-grid { grid-template-columns: 1fr; max-height: 250px; }
+  .pts-grid { grid-template-columns: repeat(3, 1fr); }
+  
+  #modal-box { padding: 20px 16px; width: 100%; max-width: calc(100vw - 24px); border-radius: 8px; margin: 0 auto; }
+  .modal-actions { display: flex; flex-direction: column; gap: 8px; }
+  .modal-actions .btn { width: 100%; }
+  
+  .champ-banner { flex-direction: column; text-align: center; padding: 20px 16px; gap: 16px; }
+  .champ-name { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+
+<input type="file" id="img-upload" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+
+<div id="header">
+  <div class="flex items-center">
+    <div class="logo"><span class="logo-f1">F1</span><span class="text">MANAGER</span></div>
+    <div class="season-badge" id="season-badge">SEASON 1</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-season" onclick="confirmCompleteSeason()">🏁 END SEASON</button>
+  </div>
+</div>
+
+<div id="nav">
+  <div class="nav-tab active" data-tab="ranking" onclick="switchTab('ranking')">🏆 Ranking</div>
+  <div class="nav-tab" data-tab="grandprix" onclick="switchTab('grandprix')">🏎️ Grand Prix</div>
+  <div class="nav-tab" data-tab="wins" onclick="switchTab('wins')">🥇 Wins</div>
+</div>
+
+<div id="main"><div id="content"></div></div>
+
+<div id="modal-overlay" onclick="overlayClick(event)">
+  <div id="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<div id="save-notif">✓ SAVED</div>
+
+<script>
+// ════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════
+let S = {
+  season: 1,
+  players:  [],   
+  circuits: [],   
+  gpOrder:  [],   
+  gpResults:{},   
+  pointsSys:{     
+    1:25,2:18,3:15,4:12,5:10,6:8,7:6,8:4,9:2,10:1,
+    11:0,12:0,13:0,14:0,15:0,16:0,17:0,18:0,19:0,20:0,21:0,22:0,
+    driverOfDay:2, fastestLap:1
+  },
+  manualWins:  [],  
+  winsLog:     [],  
+  history:     []   
+};
+
+let curTab      = 'ranking';
+let curWinsTab  = 'champions';
+let ptsPanelOpen= false;
+let uploadTarget = null; 
+
+const COLORS = ['#e10600','#ff8700','#00d2be','#0045ff','#dc0000','#c8b000','#ff55c8','#46a0ff','#39d939','#b6babd','#9b59b6','#1abc9c'];
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+// ════════════════════════════════════════════════════
+//  TRUE AUTO-SAVE & LIVE REFRESH
+// ════════════════════════════════════════════════════
+// Called on EVERY data mutation. Saves to localStorage and live updates the screen.
+function saveState(){
+  localStorage.setItem('f1_mgr_v6', JSON.stringify(S));
+  
+  // Flash Save Notification
+  const n = document.getElementById('save-notif');
+  n.classList.add('show');
+  clearTimeout(window.saveNotifTimeout);
+  window.saveNotifTimeout = setTimeout(()=>n.classList.remove('show'), 2000);
+}
+
+// Live refresh for multiple tabs
+window.addEventListener('storage', (e) => {
+  if(e.key && e.key.startsWith('f1_mgr')) {
+    loadState();
+    render();
+    // If modal is open, attempt to safely refresh its data visually
+    if(document.getElementById('modal-overlay').classList.contains('show')){
+       closeModal(); // Failsafe to prevent desyncs across tabs
+    }
+  }
+});
+
+function loadState(){
+  try{
+    const d = localStorage.getItem('f1_mgr_v6') || localStorage.getItem('f1_mgr_v5') || localStorage.getItem('f1_mgr_v4') || localStorage.getItem('f1_mgr_v3') || localStorage.getItem('f1_mgr_v2');
+    if(d) S = {...S, ...JSON.parse(d)};
+  }catch(e){}
+}
+
+function triggerUpload(type, id, event) {
+  event.stopPropagation();
+  uploadTarget = { type, id };
+  const input = document.getElementById('img-upload');
+  input.value = ''; 
+  input.click();
+}
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      let maxW = uploadTarget.type === 'circuit' ? 160 : 200;
+      let maxH = uploadTarget.type === 'circuit' ? 100 : 200;
+      let w = img.width;
+      let h = img.height;
+      
+      if (w > maxW || h > maxH) {
+        const ratio = Math.min(maxW / w, maxH / h);
+        w = w * ratio;
+        h = h * ratio;
+      }
+      canvas.width = w;
+      canvas.height = h;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, w, h);
+      
+      const base64 = canvas.toDataURL('image/jpeg', 0.9);
+      
+      if (uploadTarget.type === 'driver') {
+        const p = S.players.find(x => x.id === uploadTarget.id);
+        if (p) p.photo = base64;
+      } else if (uploadTarget.type === 'circuit') {
+        const c = S.circuits.find(x => x.id === uploadTarget.id);
+        if (c) c.flag = base64;
+      }
+      
+      saveState();
+      
+      if(document.getElementById('modal-overlay').classList.contains('show')){
+          if(uploadTarget.type === 'driver') openDriverModal(uploadTarget.id);
+          else if(uploadTarget.type === 'circuit') openCircuitWinsModal(uploadTarget.id);
+      } else {
+          render();
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════
+function playerName(id){ const p=S.players.find(p=>p.id===id); return p?p.name:'—' }
+function circuitName(id){ const c=S.circuits.find(c=>c.id===id); return c?c.name:'—' }
+function initials(name){ return name.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'??' }
+function playerColor(id){ const i=S.players.findIndex(p=>p.id===id); return COLORS[i%COLORS.length] }
+
+function playerPoints(pid){
+  let t=0;
+  for(const cid in S.gpResults){
+    const r=S.gpResults[cid];
+    if(!r.completed) continue;
+    const pe=r.positions.find(p=>p.playerId===pid);
+    if(pe) t+=S.pointsSys[pe.pos]||0;
+    if(r.driverOfDay===pid) t+=S.pointsSys.driverOfDay||0;
+    if(r.fastestLap===pid)  t+=S.pointsSys.fastestLap||0;
+  }
+  return t;
+}
+
+function playerSeasonWins(pid){
+  let w=0;
+  for(const cid in S.gpResults){
+    const r=S.gpResults[cid];
+    if(!r.completed) continue;
+    const win=r.positions.find(p=>p.pos===1);
+    if(win&&win.playerId===pid) w++;
+  }
+  return w;
+}
+
+function playerPodiums(pid){
+  let p=0;
+  for(const cid in S.gpResults){
+    const r=S.gpResults[cid];
+    if(!r.completed) continue;
+    const pe=r.positions.find(p=>p.playerId===pid);
+    if(pe&&pe.pos<=3) p++;
+  }
+  return p;
+}
+function playerChampionships(pid){ return S.manualWins.filter(w=>w.playerId===pid&&w.type==='championship').length }
+
+function playerAllTimeWins(pid){ 
+  // Get ONLY the securely logged wins that are finalized in S.winsLog
+  let logged = S.winsLog.filter(w=>w.playerId===pid).length;
+  // Add manually entered GP wins securely parsed as numbers
+  let manual = S.manualWins.filter(w=>w.playerId===pid && w.type==='gp').reduce((sum, w) => sum + (Number(w.count) || 1), 0);
+  
+  // Notice we DO NOT add playerSeasonWins(pid) here! 
+  // Double counting is permanently squashed.
+  return logged + manual;
+}
+
+function circuitWinsMap(cid){
+  const m={};
+  S.winsLog.filter(w=>w.circuitId===cid).forEach(w=>{ m[w.playerId]=(m[w.playerId]||0)+1 });
+  return m;
+}
+
+function rankings(){
+  return S.players
+    .map(p=>({p, pts:playerPoints(p.id), wins:playerSeasonWins(p.id), pods:playerPodiums(p.id)}))
+    .sort((a,b)=>b.pts-a.pts||b.wins-a.wins||b.pods-a.pods);
+}
+function completedGPs(){ return Object.values(S.gpResults).filter(r=>r.completed).length }
+
+// Image Render Helpers
+function avatar(id, sz=56, fz=20){
+  const p = S.players.find(x => x.id === id);
+  const bg = playerColor(id);
+  const content = p && p.photo ? `<img src="${p.photo}" alt="">` : (p ? initials(p.name) : '??');
+  return `<div class="driver-avatar" style="width:${sz}px;height:${sz}px;font-size:${fz}px;background:${bg}" onclick="triggerUpload('driver','${id}', event)" title="Upload Photo">${content}</div>`;
+}
+function avatarSm(id){
+  const p = S.players.find(x => x.id === id);
+  const bg = playerColor(id);
+  const content = p && p.photo ? `<img src="${p.photo}" alt="">` : (p ? initials(p.name) : '??');
+  return `<div class="driver-avatar-sm" style="background:${bg}">${content}</div>`;
+}
+function flagHtml(id){
+  const c = S.circuits.find(x => x.id === id);
+  const content = c && c.flag ? `<img src="${c.flag}" alt="">` : `FLAG`;
+  return `<div class="circuit-flag" onclick="triggerUpload('circuit','${id}', event)" title="Upload Flag">${content}</div>`;
+}
+
+// ════════════════════════════════════════════════════
+//  NAV
+// ════════════════════════════════════════════════════
+function switchTab(tab){
+  curTab=tab;
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+  render();
+}
+function switchWinsTab(tab){ curWinsTab=tab; render() }
+
+// ════════════════════════════════════════════════════
+//  RENDER DISPATCH
+// ════════════════════════════════════════════════════
+function render(){
+  document.getElementById('season-badge').textContent=`SEASON ${S.season}`;
+  const el=document.getElementById('content');
+  el.classList.remove('fade-in');
+  void el.offsetWidth;
+  el.classList.add('fade-in');
+  if(curTab==='ranking')   renderRanking(el);
+  else if(curTab==='grandprix') renderGrandPrix(el);
+  else if(curTab==='wins') renderWins(el);
+}
+
+// ════════════════════════════════════════════════════
+//  RANKING
+// ════════════════════════════════════════════════════
+function renderRanking(el){
+  const r=rankings();
+  const allDone=S.gpOrder.length>0&&completedGPs()===S.gpOrder.length;
+
+  let h=`<div class="section-header">
+    <div class="section-title-block"><div class="red-line"></div>
+      <div class="section-title">Driver <span class="accent">Standings</span></div>
+    </div>
+  </div>`;
+
+  if(allDone&&r.length>0){
+    const champ = r[0];
+    const champPhoto = champ.p.photo ? `<img src="${champ.p.photo}">` : `🏆`;
+    h+=`<div class="champ-banner">
+      <div class="champ-avatar">${champPhoto}</div>
+      <div>
+        <div class="champ-label">Season ${S.season} World Champion</div>
+        <div class="champ-name">${champ.p.name}</div>
+        <div class="champ-pts">${champ.pts} PTS &nbsp;·&nbsp; ${champ.wins} WINS &nbsp;·&nbsp; ${champ.pods} PODIUMS</div>
+      </div>
+    </div>`;
+  }
+
+  if(r.length===0){
+    h+=`<div class="empty-state"><div class="empty-icon">🏎️</div><div class="empty-text">No drivers yet — add them in the Wins tab</div></div>`;
+  } else {
+    h+=`<div class="table-responsive"><table class="rank-table"><thead><tr>
+      <th>POS</th><th>DRIVER</th><th>PTS</th><th>SEASON WINS</th><th>PODS</th>
+    </tr></thead><tbody>`;
+    r.forEach((e,i)=>{
+      const nc=i===0?'r1':i===1?'r2':i===2?'r3':'';
+      const ptsC=i===0?'leader':'';
+      h+=`<tr class="${i===0?'leader':''}">
+        <td><span class="rank-num ${nc}">${i+1}</span></td>
+        <td><div class="flex items-center gap12">${avatarSm(e.p.id)}<span class="bold uppercase" style="letter-spacing:0.5px">${e.p.name}</span></div></td>
+        <td><span class="rank-pts ${ptsC}">${e.pts}</span></td>
+        <td><span class="rank-mono">${e.wins}</span></td>
+        <td><span class="rank-mono">${e.pods}</span></td>
+      </tr>`;
+    });
+    h+=`</tbody></table></div>`;
+  }
+  el.innerHTML=h;
+}
+
+// ════════════════════════════════════════════════════
+//  GRAND PRIX
+// ════════════════════════════════════════════════════
+function renderGrandPrix(el){
+  let h=`<div class="section-header">
+    <div class="section-title-block"><div class="red-line"></div>
+      <div class="section-title">Grand <span class="accent">Prix</span></div>
+    </div>
+    <div class="section-actions">
+      <button class="btn btn-outline btn-sm" onclick="togglePtsPanel()">⚙️ POINTS</button>
+      <button class="btn btn-outline btn-sm" onclick="doRandomize()">🔀 RANDOMIZE</button>
+      <button class="btn btn-red btn-sm" onclick="openAddGPModal()">＋ ADD GP</button>
+    </div>
+  </div>`;
+
+  h+=buildPtsPanel();
+
+  if(S.gpOrder.length===0){
+    h+=`<div class="empty-state"><div class="empty-icon">🏁</div><div class="empty-text">No GPs yet — add circuits in Wins tab</div></div>`;
+  } else {
+    S.gpOrder.forEach((cid,idx)=>{
+      const res=S.gpResults[cid];
+      const done=res&&res.completed;
+      let wname='';
+      if(done){const ww=res.positions.find(p=>p.pos===1);if(ww)wname=playerName(ww.playerId)}
+      h+=`<div class="gp-entry" onclick="openGPModal('${cid}')">
+        <div class="gp-num">${idx+1}</div>
+        <div class="gp-info">
+          <div class="gp-circuit-name">${flagHtml(cid)} ${circuitName(cid)}</div>
+          ${done&&wname?`<div class="gp-winner-text">🏆 Winner: ${wname}</div>`:''}
+        </div>
+        <div class="gp-actions">
+          <span class="tag ${done?'tag-green':'tag-blue'}">${done?'DONE':'PENDING'}</span>
+        </div>
+      </div>`;
+    });
+  }
+  el.innerHTML=h;
+}
+
+function buildPtsPanel(){
+  const ps=S.pointsSys;
+  let h=`<div class="points-panel ${ptsPanelOpen?'open':''}" id="pts-panel">
+    <div class="points-panel-title">Points System</div>
+    <div class="pts-grid">`;
+  for(let i=1;i<=22;i++){
+    h+=`<div class="pts-cell"><label>P${i}</label>
+      <input type="number" min="0" value="${ps[i]||0}" onchange="setPts(${i},this.value)"></div>`;
+  }
+  h+=`</div><div class="pts-special">
+    <div class="pts-special-item"><label>Driver of Day</label>
+      <input type="number" min="0" value="${ps.driverOfDay||0}" onchange="setPts('driverOfDay',this.value)"></div>
+    <div class="pts-special-item"><label>Fastest Lap</label>
+      <input type="number" min="0" value="${ps.fastestLap||0}" onchange="setPts('fastestLap',this.value)"></div>
+  </div></div>`;
+  return h;
+}
+
+function togglePtsPanel(){
+  ptsPanelOpen=!ptsPanelOpen;
+  const el=document.getElementById('pts-panel');
+  if(el) el.classList.toggle('open',ptsPanelOpen);
+}
+
+function setPts(k,v){
+  const key=isNaN(k)?k:Number(k);
+  S.pointsSys[key]=Number(v)||0;
+  saveState();
+  render();
+}
+
+function doRandomize(){
+  if(S.gpOrder.length<2) return;
+  for(let i=S.gpOrder.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [S.gpOrder[i],S.gpOrder[j]]=[S.gpOrder[j],S.gpOrder[i]];
+  }
+  saveState();
+  render();
+}
+
+function removeGP(cid){
+  if(!confirm('Remove this GP from the schedule?')) return;
+  S.gpOrder=S.gpOrder.filter(id=>id!==cid);
+  
+  if(S.gpResults[cid]){
+    if(S.gpResults[cid].completed){
+      S.winsLog=S.winsLog.filter(w=>!(w.circuitId===cid&&w.season===S.season));
+    }
+    delete S.gpResults[cid];
+  }
+  
+  saveState();
+  closeModal();
+  render();
+}
+
+function openAddGPModal(){
+  if(S.circuits.length===0){
+    return openModal(`<div class="modal-title">Add Grand Prix</div>
+      <p style="color:var(--text-dim);line-height:1.6">No circuits found.<br>Please add circuits in <strong>Wins → Circuit Wins</strong> first.</p>
+      <div class="modal-actions mt16"><button class="btn btn-ghost" onclick="closeModal()">CLOSE</button></div>`);
+  }
+  let opts=S.circuits.map(c=>{
+    const already=S.gpOrder.includes(c.id);
+    return `<option value="${c.id}"${already?' style="color:var(--text-dimmer)"':''}>${c.name}${already?' (in schedule)':''}</option>`;
+  }).join('');
+  openModal(`<div class="modal-title">Add Grand Prix</div>
+    <div class="form-group"><label class="form-label">Circuit</label>
+      <select class="form-select" id="addgp-cid"><option value="">— Select Circuit —</option>${opts}</select>
+    </div>
+    <div class="modal-actions"><button class="btn btn-red" onclick="confirmAddGP()">ADD TO SCHEDULE</button>
+      <button class="btn btn-ghost" onclick="closeModal()">CANCEL</button></div>`);
+}
+function confirmAddGP(){
+  const cid=document.getElementById('addgp-cid')?.value;
+  if(!cid) return;
+  if(!S.gpOrder.includes(cid)) S.gpOrder.push(cid);
+  saveState(); closeModal(); render();
+}
+
+function openGPModal(cid){
+  const res=S.gpResults[cid]||{positions:[],driverOfDay:null,fastestLap:null,completed:false};
+  const gpN=S.gpOrder.indexOf(cid)+1;
+  const cname=circuitName(cid);
+  const posMap={};
+  res.positions.forEach(p=>posMap[p.pos]=p.playerId);
+  const numPos=Math.min(22, Math.max(S.players.length, res.positions.length));
+
+  let posRows='';
+  for(let i=1;i<=numPos;i++){
+    const lc=i===1?'p1':i===2?'p2':i===3?'p3':'';
+    const cur=posMap[i]||'';
+    const opts=S.players.map(p=>`<option value="${p.id}"${p.id===cur?' selected':''}>${p.name}</option>`).join('');
+    posRows+=`<div class="pos-row"><div class="pos-label ${lc}">P${i}</div>
+      <select class="pos-select" data-pos="${i}"><option value="">—</option>${opts}</select></div>`;
+  }
+
+  const plOpts='<option value="">—</option>'+S.players.map(p=>`<option value="${p.id}"${p.id===res.driverOfDay?' selected':''}>${p.name}</option>`).join('');
+  const flOpts='<option value="">—</option>'+S.players.map(p=>`<option value="${p.id}"${p.id===res.fastestLap?' selected':''}>${p.name}</option>`).join('');
+
+  openModal(`<div class="modal-title flex items-center gap12">GP ${gpN} 
+    ${res.completed?'<span class="tag tag-green">COMPLETED</span>':''}</div>
+    <div class="form-group">
+      <div class="form-label">Finishing Positions</div>
+      ${numPos===0?`<p class="text-dim text-sm">Add players in Wins first.</p>`:`<div class="pos-grid" id="pos-grid">${posRows}</div>`}
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">🏆 Driver of the Day</label>
+        <select class="form-select" id="gp-dotd">${plOpts}</select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">⚡ Fastest Lap</label>
+        <select class="form-select" id="gp-fl">${flOpts}</select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      ${!res.completed?`<button class="btn btn-outline" onclick="saveGP('${cid}',false)">SAVE DRAFT</button>
+        <button class="btn btn-gold" onclick="saveGP('${cid}',true)">✓ COMPLETE GP</button>`:''}
+      ${res.completed?`<button class="btn btn-outline" onclick="saveGP('${cid}',false)">✏️ REOPEN</button>`:''}
+      <button class="btn btn-danger" onclick="removeGP('${cid}')">✕ REMOVE GP</button>
+      <button class="btn btn-ghost" onclick="closeModal()">CLOSE</button>
+    </div>`);
+}
+
+function saveGP(cid, complete){
+  const positions=[];
+  const used=new Set();
+  document.querySelectorAll('#pos-grid .pos-select').forEach(sel=>{
+    const pos=Number(sel.dataset.pos);
+    const pid=sel.value;
+    if(pid&&!used.has(pid)){ positions.push({pos,playerId:pid}); used.add(pid); }
+  });
+  const dod=document.getElementById('gp-dotd')?.value||null;
+  const fl =document.getElementById('gp-fl')?.value||null;
+  
+  // Safely grab previous status
+  const prev=S.gpResults[cid];
+  const wasCompleted=prev&&prev.completed;
+
+  // OVERWRITE with new status
+  S.gpResults[cid]={positions, driverOfDay:dod||null, fastestLap:fl||null, completed:complete};
+
+  // If newly completing, remove any old logs for this season, then safely log the new one
+  if(complete){
+    S.winsLog=S.winsLog.filter(w=>!(w.circuitId===cid&&w.season===S.season));
+    const winner=positions.find(p=>p.pos===1);
+    if(winner) S.winsLog.push({circuitId:cid,playerId:winner.playerId,season:S.season});
+  } 
+  // If we are REOPENING (complete=false) and it WAS previously completed, cleanly remove log.
+  else if(wasCompleted){
+    S.winsLog=S.winsLog.filter(w=>!(w.circuitId===cid&&w.season===S.season));
+  }
+  
+  saveState(); closeModal(); render();
+}
+
+// ════════════════════════════════════════════════════
+//  WINS
+// ════════════════════════════════════════════════════
+function renderWins(el){
+  let h=`<div class="section-header">
+    <div class="section-title-block"><div class="red-line"></div>
+      <div class="section-title">Career <span class="accent">Wins</span></div>
+    </div>
+  </div>
+  <div class="sub-tabs">
+    <button class="sub-tab ${curWinsTab==='champions'?'active':''}" onclick="switchWinsTab('champions')">🏆 F1 Champions</button>
+    <button class="sub-tab ${curWinsTab==='circuits'?'active':''}" onclick="switchWinsTab('circuits')">🗺️ Circuit Wins</button>
+  </div>`;
+  h+= curWinsTab==='champions' ? buildChampionsTab() : buildCircuitsTab();
+  el.innerHTML=h;
+}
+
+function buildChampionsTab(){
+  const sorted=[...S.players].sort((a,b)=>{
+    const ca=playerChampionships(a.id), cb=playerChampionships(b.id);
+    if(cb!==ca) return cb-ca;
+    return playerAllTimeWins(b.id)-playerAllTimeWins(a.id);
+  });
+
+  let h=`<div class="flex justify-between items-center mb16">
+    <span class="mono text-xs text-dimmer">${sorted.length} DRIVER${sorted.length!==1?'S':''}</span>
+    <button class="btn btn-red btn-sm" onclick="openAddPlayerModal()">＋ ADD DRIVER</button>
+  </div>`;
+
+  if(sorted.length===0) return h+`<div class="empty-state"><div class="empty-icon">👤</div><div class="empty-text">Add your first driver</div></div>`;
+
+  h+=`<div class="table-responsive"><table class="rank-table"><thead><tr>
+    <th>DRIVER</th><th>CHAMPIONSHIPS</th><th>WINS</th>
+  </tr></thead><tbody>`;
+
+  sorted.forEach(p=>{
+    const champ=playerChampionships(p.id);
+    const allWins=playerAllTimeWins(p.id); 
+
+    h+=`<tr onclick="openDriverModal('${p.id}')">
+      <td><div class="flex items-center gap12">${avatarSm(p.id)}<span class="bold uppercase" style="letter-spacing:0.5px">${p.name}</span></div></td>
+      <td><span class="rank-mono text-gold">${champ}</span></td>
+      <td><span class="rank-mono">${allWins}</span></td>
+    </tr>`;
+  });
+  h+=`</tbody></table></div>`;
+  
+  return h;
+}
+
+function buildCircuitsTab(){
+  let h=`<div class="flex justify-between items-center mb16">
+    <span class="mono text-xs text-dimmer">${S.circuits.length} CIRCUIT${S.circuits.length!==1?'S':''}</span>
+    <button class="btn btn-red btn-sm" onclick="openAddCircuitModal()">＋ ADD CIRCUIT</button>
+  </div>`;
+
+  if(S.circuits.length===0) return h+`<div class="empty-state"><div class="empty-icon">🗺️</div><div class="empty-text">Add your first circuit</div></div>`;
+
+  S.circuits.forEach(c=>{
+    const wm=circuitWinsMap(c.id);
+    const total=Object.values(wm).reduce((a,b)=>a+b,0);
+    const inSchedule=S.gpOrder.includes(c.id);
+    const gpN=inSchedule?S.gpOrder.indexOf(c.id)+1:null;
+    h+=`<div class="circuit-card" onclick="openCircuitWinsModal('${c.id}')">
+      <div>
+        <div class="circuit-name-big">${flagHtml(c.id)} ${c.name}</div>
+        <div class="circuit-sub">${total} win${total!==1?'s':''} recorded</div>
+      </div>
+      <div class="circuit-right">
+        ${inSchedule?`<span class="tag tag-blue">GP ${gpN}</span>`:''}
+        <span class="text-dimmer bold" style="font-size:18px">›</span>
+      </div>
+    </div>`;
+  });
+  return h;
+}
+
+// ════════════════════════════════════════════════════
+//  MODAL HELPERS
+// ════════════════════════════════════════════════════
+function openModal(html){
+  document.getElementById('modal-content').innerHTML=html;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function closeModal(){ document.getElementById('modal-overlay').classList.remove('show') }
+function overlayClick(e){ if(e.target===document.getElementById('modal-overlay')) closeModal() }
+
+// ════════════════════════════════════════════════════
+//  PLAYER CRUD
+// ════════════════════════════════════════════════════
+function openDriverModal(pid){
+  const p = S.players.find(x => x.id === pid);
+  if(!p) return;
+  
+  const champWinsArr = S.manualWins.filter(w=>w.playerId===p.id && w.type==='championship').sort((a,b)=> (b.year||0) - (a.year||0));
+  const champCount = champWinsArr.length;
+  const champYearsStr = champWinsArr.map(w => w.isSeason ? `S${w.year}` : w.year).join(', ');
+  
+  const allWins = playerAllTimeWins(p.id);
+  const mw = S.manualWins.filter(w=>w.playerId===p.id).sort((a,b)=> (b.year||0) - (a.year||0));
+
+  let h = `<div class="modal-title flex items-center gap16">${avatar(p.id)} ${p.name}</div>`;
+  
+  h += `<div class="driver-stats mb16">
+          <div class="stat-item" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+            <div><span class="stat-val gold">${champCount}</span> <span class="stat-label">Championships</span></div>
+            ${champYearsStr ? `<div style="font-family: var(--font-mono); font-size: 11px; color: var(--gold-dim); line-height: 1.3">YRS: ${champYearsStr}</div>` : ''}
+          </div>
+          <div class="stat-item" style="align-items: center;">
+            <span class="stat-val">${allWins}</span> <span class="stat-label">Total Wins</span>
+          </div>
+        </div>`;
+
+  h += `<div class="modal-actions mb16" style="border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+          <button class="btn btn-outline btn-sm" onclick="openAddWinModal('${p.id}')">＋ ADD WIN</button>
+          <button class="btn btn-outline btn-sm" onclick="openEditPlayerModal('${p.id}')">✏️ EDIT</button>
+          <button class="btn btn-danger btn-sm" onclick="deletePlayer('${p.id}')">✕ DELETE</button>
+        </div>`;
+
+  if(mw.length > 0){
+    h += `<div class="win-history-label mt16">MANUAL WIN HISTORY</div>`;
+    mw.forEach(w => {
+      const val = w.type === 'championship' ? (w.isSeason ? `Season ${w.year}` : w.year) : w.count + ' WINS';
+      const txt = w.type === 'championship' ? '🏆 F1 Championship' : '🏁 Manual GP Wins';
+      h += `<div class="win-item">
+              <div class="win-year">${val}</div>
+              <div class="win-type-text">${txt}</div>
+              <button class="btn-icon" onclick="deleteManualWin('${w.id}', '${p.id}')">✕</button>
+            </div>`;
+    });
+  }
+  
+  h += `<div class="mt24"><button class="btn btn-ghost w100" onclick="closeModal()">CLOSE</button></div>`;
+  openModal(h);
+}
+
+function openAddPlayerModal(){
+  openModal(`<div class="modal-title">Add Driver</div>
+    <div class="form-group"><label class="form-label">Driver Name</label>
+      <input class="form-input" id="inp-pname" placeholder="e.g. Lewis Hamilton" onkeydown="if(event.key==='Enter')confirmAddPlayer()">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-red" onclick="confirmAddPlayer()">ADD DRIVER</button>
+      <button class="btn btn-ghost" onclick="closeModal()">CANCEL</button>
+    </div>`);
+  setTimeout(()=>document.getElementById('inp-pname')?.focus(),80);
+}
+function confirmAddPlayer(){
+  const n=document.getElementById('inp-pname')?.value?.trim();
+  if(!n) return;
+  S.players.push({id:uid(),name:n});
+  saveState(); closeModal(); render();
+}
+
+function openEditPlayerModal(pid){
+  const p=S.players.find(p=>p.id===pid); if(!p) return;
+  openModal(`<div class="modal-title">Edit Driver</div>
+    <div class="form-group"><label class="form-label">Name</label>
+      <input class="form-input" id="inp-epname" value="${p.name}" onkeydown="if(event.key==='Enter')confirmEditPlayer('${pid}')">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-red" onclick="confirmEditPlayer('${pid}')">SAVE</button>
+      <button class="btn btn-ghost" onclick="openDriverModal('${pid}')">CANCEL</button>
+    </div>`);
+}
+function confirmEditPlayer(pid){
+  const n=document.getElementById('inp-epname')?.value?.trim(); if(!n) return;
+  const p=S.players.find(p=>p.id===pid); if(p) p.name=n;
+  saveState(); openDriverModal(pid); render();
+}
+function deletePlayer(pid){
+  if(!confirm('Delete this driver and all associated records?')) return;
+  S.players=S.players.filter(p=>p.id!==pid);
+  S.manualWins=S.manualWins.filter(w=>w.playerId!==pid);
+  S.winsLog=S.winsLog.filter(w=>w.playerId!==pid);
+  for(const cid in S.gpResults){
+    const r=S.gpResults[cid];
+    r.positions=r.positions.filter(pp=>pp.playerId!==pid);
+    if(r.driverOfDay===pid) r.driverOfDay=null;
+    if(r.fastestLap===pid)  r.fastestLap=null;
+  }
+  saveState(); closeModal(); render();
+}
+
+// ════════════════════════════════════════════════════
+//  MANUAL WIN CRUD
+// ════════════════════════════════════════════════════
+window.updateWinInputLabel = function() {
+  const t = document.getElementById('inp-wtype').value;
+  const lbl = document.getElementById('lbl-wval');
+  const inp = document.getElementById('inp-wval');
+  if(t === 'championship') {
+    lbl.innerText = 'Year';
+    inp.value = new Date().getFullYear();
+  } else {
+    lbl.innerText = 'No. of Wins';
+    inp.value = 1;
+  }
+}
+
+function openAddWinModal(pid){
+  const p=S.players.find(pp=>pp.id===pid); if(!p) return;
+  const yr=new Date().getFullYear();
+  openModal(`<div class="modal-title">Add Win</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Type</label>
+        <select class="form-select" id="inp-wtype" onchange="updateWinInputLabel()">
+          <option value="championship">🏆 F1 Championship</option>
+          <option value="gp">🏁 GP Wins</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label" id="lbl-wval">Year</label>
+        <input class="form-input" id="inp-wval" type="number" value="${yr}" min="1" max="1000">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-red" onclick="confirmAddWin('${pid}')">ADD WIN</button>
+      <button class="btn btn-ghost" onclick="openDriverModal('${pid}')">CANCEL</button>
+    </div>`);
+}
+function confirmAddWin(pid){
+  const type=document.getElementById('inp-wtype')?.value;
+  const val=parseInt(document.getElementById('inp-wval')?.value);
+  if(!type||!val) return;
+  
+  if(type === 'championship') {
+     S.manualWins.push({id:uid(), playerId:pid, type, year: val});
+  } else {
+     S.manualWins.push({id:uid(), playerId:pid, type, count: val});
+  }
+  
+  saveState(); openDriverModal(pid); render();
+}
+function deleteManualWin(wid, pid){
+  if(!confirm('Remove this win record?')) return;
+  S.manualWins=S.manualWins.filter(w=>w.id!==wid);
+  saveState(); openDriverModal(pid); render();
+}
+
+// ════════════════════════════════════════════════════
+//  CIRCUIT CRUD
+// ════════════════════════════════════════════════════
+function openAddCircuitModal(){
+  openModal(`<div class="modal-title">Add Circuit</div>
+    <div class="form-group"><label class="form-label">Circuit Name</label>
+      <input class="form-input" id="inp-cname" placeholder="e.g. Monaco" onkeydown="if(event.key==='Enter')confirmAddCircuit()">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-red" onclick="confirmAddCircuit()">ADD CIRCUIT</button>
+      <button class="btn btn-ghost" onclick="closeModal()">CANCEL</button>
+    </div>`);
+  setTimeout(()=>document.getElementById('inp-cname')?.focus(),80);
+}
+function confirmAddCircuit(){
+  const n=document.getElementById('inp-cname')?.value?.trim(); if(!n) return;
+  S.circuits.push({id:uid(),name:n});
+  saveState(); closeModal(); render();
+}
+
+function openEditCircuitModal(cid){
+  const c=S.circuits.find(c=>c.id===cid); if(!c) return;
+  openModal(`<div class="modal-title">Edit Circuit</div>
+    <div class="form-group"><label class="form-label">Name</label>
+      <input class="form-input" id="inp-ecname" value="${c.name}" onkeydown="if(event.key==='Enter')confirmEditCircuit('${cid}')">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-red" onclick="confirmEditCircuit('${cid}')">SAVE</button>
+      <button class="btn btn-ghost" onclick="openCircuitWinsModal('${cid}')">CANCEL</button>
+    </div>`);
+}
+function confirmEditCircuit(cid){
+  const n=document.getElementById('inp-ecname')?.value?.trim(); if(!n) return;
+  const c=S.circuits.find(c=>c.id===cid); if(c) c.name=n;
+  saveState(); openCircuitWinsModal(cid); render();
+}
+function deleteCircuit(cid){
+  if(!confirm('Delete this circuit? It will also be removed from the GP schedule.')) return;
+  S.circuits=S.circuits.filter(c=>c.id!==cid);
+  S.gpOrder=S.gpOrder.filter(id=>id!==cid);
+  delete S.gpResults[cid];
+  S.winsLog=S.winsLog.filter(w=>w.circuitId!==cid);
+  saveState(); closeModal(); render();
+}
+
+function openCircuitWinsModal(cid){
+  const c=S.circuits.find(c=>c.id===cid); if(!c) return;
+  const wm=circuitWinsMap(cid);
+  const sorted=Object.entries(wm)
+    .map(([pid,w])=>({player:S.players.find(p=>p.id===pid),wins:w}))
+    .filter(e=>e.player)
+    .sort((a,b)=>b.wins-a.wins);
+
+  let h=`<div class="modal-title flex items-center gap12">${flagHtml(c.id)} ${c.name}</div>
+    <div class="mono text-xs text-dimmer mb16" style="letter-spacing:2px">ALL-TIME CIRCUIT WINNERS</div>`;
+
+  if(sorted.length===0){
+    h+=`<div class="empty-state" style="padding:40px 0"><div class="empty-icon">🏁</div><div class="empty-text">No results recorded yet</div></div>`;
+  } else {
+    sorted.forEach((e,i)=>{
+      const pc=i===0?'cw1':i===1?'cw2':i===2?'cw3':'';
+      h+=`<div class="cw-row">
+        <div class="cw-pos ${pc}">${i+1}</div>
+        ${avatarSm(e.player.id)}
+        <div class="cw-name">${e.player.name}</div>
+        <div class="cw-count">${e.wins} WIN${e.wins!==1?'S':''}</div>
+      </div>`;
+    });
+  }
+  
+  h += `<div class="modal-actions mt24" style="border-top: 1px solid var(--border); padding-top: 16px;">
+          <button class="btn btn-outline" onclick="openEditCircuitModal('${cid}')">✏️ EDIT</button>
+          <button class="btn btn-danger" onclick="deleteCircuit('${cid}')">✕ DELETE</button>
+          <button class="btn btn-ghost" onclick="closeModal()">CLOSE</button>
+        </div>`;
+  openModal(h);
+}
+
+// ════════════════════════════════════════════════════
+//  SEASON COMPLETE
+// ════════════════════════════════════════════════════
+function confirmCompleteSeason(){
+  const r=rankings();
+  const champ=r.length>0?r[0]:null;
+  const msg=champ
+    ?`End Season ${S.season}?\n\nChampion: ${champ.p.name} (${champ.pts} pts)\n\nAll Grand Prix results will be reset for the new season. Win logs and driver records are kept.`
+    :`End Season ${S.season}? All Grand Prix results will be reset.`;
+  if(!confirm(msg)) return;
+  if(champ) {
+    S.history.push({season:S.season, champion:champ.p.id, points:champ.pts});
+    
+    // Automatically Add Championship to Winner's Records
+    S.manualWins.push({id:uid(), playerId:champ.p.id, type:'championship', year: S.season, isSeason: true});
+  }
+  S.gpResults={};
+  S.season++;
+  saveState();
+  render();
+}
+
+// ════════════════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════════════════
+loadState();
+render();
+</script>
+</body>
+</html>
