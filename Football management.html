@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Football Finance Manager</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#0a0e17;--card:#12172a;--card2:#1a2038;--card3:#222940;
+  --accent:#5b9aff;--accent2:#4080e0;--accentGlow:rgba(91,154,255,0.12);
+  --green:#34d399;--greenDim:rgba(52,211,153,0.12);
+  --yellow:#fbbf24;--yellowDim:rgba(251,191,36,0.12);
+  --red:#f87171;--redDim:rgba(248,113,113,0.12);
+  --orange:#fb923c;
+  --purple:#a78bfa;--purpleDim:rgba(167,139,250,0.12);
+  --text:#eef0f6;--text2:#7b84a0;--text3:#4a5270;
+  --border:#1e2540;--border2:#2a3155;
+}
+body{font-family:-apple-system,'Segoe UI',system-ui,Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;overflow-x:hidden;font-size:14px;line-height:1.5;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+.app{max-width:680px;margin:0 auto;padding:6px 10px;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 2px 8px;}
+header h1{font-size:1.2rem;font-weight:800;}
+header h1 span{background:linear-gradient(135deg,var(--accent),#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.save-btn{padding:8px 16px;border:none;background:linear-gradient(135deg,var(--green),#10b981);color:#fff;font-size:0.78rem;font-weight:700;border-radius:10px;cursor:pointer;box-shadow:0 2px 12px rgba(52,211,153,0.25);}
+.save-btn:active{transform:scale(0.95);}
+
+.tabs{display:flex;gap:4px;margin:6px 0 10px;background:var(--card);border-radius:14px;padding:4px;border:1px solid var(--border);overflow-x:auto;}
+.tab-btn{flex:1;min-width:60px;padding:10px 4px;border:none;background:transparent;color:var(--text2);font-size:0.73rem;font-weight:600;border-radius:11px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.tab-btn.active{background:linear-gradient(135deg,var(--accent),#818cf8);color:#fff;box-shadow:0 2px 12px rgba(91,154,255,0.3);}
+
+.content-area{flex:1;overflow-y:auto;padding-bottom:24px;}
+.tab-content{display:none;animation:fadeIn .25s ease;}
+.tab-content.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:6px;}
+.section-header h2{font-size:1.05rem;font-weight:700;}
+.btn{padding:9px 16px;border:none;border-radius:10px;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all .15s;touch-action:manipulation;}
+.btn:active{transform:scale(0.96);}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#818cf8);color:#fff;}
+.btn-danger{background:linear-gradient(135deg,var(--red),#ef4444);color:#fff;}
+.btn-success{background:linear-gradient(135deg,var(--green),#10b981);color:#fff;}
+.btn-warning{background:linear-gradient(135deg,var(--yellow),#f59e0b);color:#1a1a1a;}
+.btn-orange{background:linear-gradient(135deg,var(--orange),#ea580c);color:#fff;}
+.btn-ghost{background:var(--card2);border:1.5px solid var(--border2);color:var(--text2);}
+.btn-sm{padding:6px 11px;font-size:0.72rem;border-radius:8px;}
+.btn-block{width:100%;text-align:center;}
+.card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:10px;border:1px solid var(--border);}
+.input{width:100%;padding:11px 14px;background:var(--card2);border:1.5px solid var(--border2);border-radius:10px;color:var(--text);font-size:0.85rem;outline:none;transition:border .2s;}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accentGlow);}
+select.input{appearance:auto;}
+label{font-size:0.74rem;color:var(--text2);margin-bottom:5px;display:block;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;}
+.form-group{margin-bottom:12px;}
+.team-card{background:var(--card);border-radius:14px;border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:all .2s;overflow:hidden;}
+.team-card:active{border-color:var(--accent);}
+.team-card-inner{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
+.team-card-inner h3{font-size:0.9rem;font-weight:700;}
+.team-meta{font-size:0.7rem;color:var(--text2);margin-top:3px;display:flex;gap:8px;align-items:center;}
+.team-balance{font-size:1.05rem;font-weight:800;}
+.bal-high{color:var(--green);}
+.bal-med{color:var(--yellow);}
+.bal-low{color:var(--red);}
+.debt-col{color:var(--red);font-weight:700;}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:0.66rem;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;}
+.badge-green{background:var(--greenDim);color:var(--green);}
+.badge-yellow{background:var(--yellowDim);color:var(--yellow);}
+.badge-red{background:var(--redDim);color:var(--red);}
+.badge-blue{background:var(--accentGlow);color:var(--accent);}
+.badge-purple{background:var(--purpleDim);color:var(--purple);}
+.empty-state{text-align:center;padding:40px 16px;color:var(--text2);}
+.empty-state .emoji{font-size:2.6rem;margin-bottom:8px;}
+.action-bar{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.action-bar .row{display:flex;gap:6px;}
+.action-bar .btn{flex:1;}
+.trophy-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--card2);border-radius:10px;margin-bottom:6px;font-size:0.84rem;border:1px solid var(--border);}
+.history-item{padding:10px 12px;background:var(--card2);border-radius:10px;margin-bottom:6px;font-size:0.82rem;border:1px solid var(--border);}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th,td{padding:10px 8px;text-align:left;border-bottom:1px solid var(--border);font-size:0.8rem;}
+th{color:var(--text3);font-weight:700;font-size:0.68rem;text-transform:uppercase;letter-spacing:.5px;}
+tr:last-child td{border-bottom:none;}
+.prize-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.prize-row .pos-badge{min-width:110px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--card3);border-radius:8px;font-size:0.76rem;font-weight:700;color:var(--accent);padding:0 10px;white-space:nowrap;}
+.prize-row .input{flex:1;}
+.assign-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;padding:10px;background:var(--card2);border-radius:10px;flex-wrap:wrap;border:1px solid var(--border);}
+.assign-row .tn{flex:1;font-weight:600;font-size:0.84rem;min-width:90px;}
+.assign-row select{flex:1;min-width:130px;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:flex-end;justify-content:center;padding:0;backdrop-filter:blur(4px);}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--card);border-radius:20px 20px 0 0;padding:8px 18px 30px;width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow-y:auto;border:1px solid var(--border);border-bottom:none;}
+.modal h3{margin-bottom:16px;font-size:1.05rem;font-weight:700;}
+.modal-actions{display:flex;gap:8px;margin-top:18px;}
+.modal-actions .btn{flex:1;}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:4px;margin:10px auto 16px;}
+.team-detail-panel{display:none;}
+.team-detail-panel.active{display:block;}
+.detail-menu{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px;}
+.dm-btn{padding:14px 8px;background:var(--card2);border:1.5px solid var(--border2);border-radius:14px;text-align:center;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--text);}
+.dm-btn:active{border-color:var(--accent);background:var(--card3);}
+.dm-btn .dm-icon{font-size:1.4rem;}
+.dm-btn .dm-label{font-size:0.7rem;font-weight:600;color:var(--text2);}
+.dm-btn.dm-debt{border-color:rgba(248,113,113,0.2);background:var(--redDim);}
+.dm-btn.dm-debt .dm-label{color:var(--red);}
+.back-btn{display:inline-flex;align-items:center;gap:5px;background:var(--card2);border:1px solid var(--border2);color:var(--accent);font-size:0.82rem;font-weight:600;cursor:pointer;padding:8px 14px;margin-bottom:10px;border-radius:10px;}
+.back-btn:active{background:var(--card3);}
+.intl-team-card{background:var(--card);border-radius:14px;border:1px solid var(--border);margin-bottom:8px;cursor:pointer;overflow:hidden;}
+.intl-team-card:active{border-color:var(--accent);}
+.intl-team-inner{padding:13px 16px;display:flex;justify-content:space-between;align-items:center;}
+.intl-team-inner h3{font-size:0.88rem;font-weight:700;}
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);padding:11px 22px;border-radius:12px;font-size:0.84rem;font-weight:600;z-index:300;display:none;max-width:92%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.4);}
+.toast.t-green{background:rgba(16,185,129,0.95);color:#fff;}
+.toast.t-red{background:rgba(239,68,68,0.95);color:#fff;}
+.toast.t-blue{background:rgba(91,154,255,0.95);color:#fff;}
+.toast.show{display:block;animation:toastAnim .3s ease;}
+@keyframes toastAnim{from{opacity:0;transform:translateX(-50%) translateY(-12px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+.debt-panel{background:linear-gradient(135deg,rgba(248,113,113,0.06),rgba(248,113,113,0.02));border:1.5px solid rgba(248,113,113,0.18);border-radius:14px;padding:16px;margin-bottom:10px;}
+.debt-big{font-size:1.7rem;font-weight:800;color:var(--red);}
+.debt-info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:0.82rem;border-bottom:1px solid rgba(248,113,113,0.1);}
+.debt-info-row:last-child{border-bottom:none;}
+.auto-loan-note{background:var(--redDim);border:1px solid rgba(248,113,113,0.2);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:0.76rem;color:var(--red);display:flex;align-items:center;gap:6px;}
+.tourn-card{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:8px;border:1px solid var(--border);cursor:pointer;transition:all .15s;}
+.tourn-card:active{border-color:var(--accent);}
+.tourn-prizes{display:flex;flex-wrap:wrap;gap:6px;}
+.tourn-prize{background:var(--card2);padding:6px 12px;border-radius:8px;font-size:0.76rem;border:1px solid var(--border);}
+.stat-card{text-align:center;padding:20px 16px;margin-bottom:10px;}
+.stat-value{font-size:2rem;font-weight:800;margin:4px 0;}
+.type-toggle{display:flex;gap:4px;background:var(--card2);border-radius:10px;padding:3px;margin-bottom:12px;}
+.type-toggle button{flex:1;padding:8px;border:none;background:transparent;color:var(--text2);font-size:0.78rem;font-weight:600;border-radius:8px;cursor:pointer;}
+.type-toggle button.active{background:var(--accent);color:#fff;}
+.ko-stage-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card2);border-radius:10px;margin-bottom:6px;border:1px solid var(--border);cursor:pointer;}
+.ko-stage-item.selected{border-color:var(--accent);background:var(--accentGlow);}
+.ko-stage-item .ko-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;flex-shrink:0;}
+.ko-stage-item.selected .ko-check{background:var(--accent);border-color:var(--accent);color:#fff;}
+.ko-stage-item .ko-info{flex:1;}
+.ko-stage-item .ko-name{font-weight:600;font-size:0.85rem;}
+.ko-stage-item .ko-hint{font-size:0.7rem;color:var(--text2);margin-top:1px;}
+.stage-note{font-size:0.72rem;color:var(--text2);padding:6px 10px;background:var(--card3);border-radius:8px;margin-bottom:8px;}
+.sub-tabs{display:flex;gap:4px;background:var(--card2);border-radius:10px;padding:3px;margin-bottom:12px;}
+.sub-tab{flex:1;padding:8px;border:none;background:transparent;color:var(--text2);font-size:0.78rem;font-weight:600;border-radius:8px;cursor:pointer;}
+.sub-tab.active{background:var(--accent);color:#fff;}
+.winner-card{padding:10px 12px;background:var(--card2);border-radius:10px;margin-bottom:6px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+.winner-card:active{border-color:var(--accent);}
+.winner-card .wc-info{display:flex;align-items:center;gap:8px;}
+.winner-card .wc-name{font-weight:700;font-size:0.88rem;}
+.winner-card .wc-count{font-size:0.72rem;color:var(--yellow);}
+.winner-year-list{padding:8px 12px;background:var(--card3);border-radius:8px;margin:-2px 0 6px;font-size:0.78rem;color:var(--text2);border:1px solid var(--border);}
+
+/* Ballon d'Or Specific Styles */
+.bdor-rank-1 { background: rgba(251, 191, 36, 0.1); border-left: 3px solid #fbbf24; }
+.bdor-rank-2 { background: rgba(156, 163, 175, 0.1); border-left: 3px solid #9ca3af; }
+.bdor-rank-3 { background: rgba(180, 83, 9, 0.1); border-left: 3px solid #b45309; }
+.bdor-rank-1 .rnk { color: #fbbf24; font-size: 1.1rem; }
+.bdor-rank-2 .rnk { color: #9ca3af; font-size: 1.1rem; }
+.bdor-rank-3 .rnk { color: #b45309; font-size: 1.1rem; }
+.bdor-tourn-row { background: var(--card3); padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border); }
+.bdor-tourn-title { font-weight: 600; font-size: 0.8rem; margin-bottom: 6px; color: var(--text); }
+.bdor-stat-sub { font-size: 0.72rem; color: var(--text2); margin-top: 2px; }
+.pts-badge { font-weight: 800; color: var(--accent); font-size: 0.9rem; }
+
+@media(min-width:500px){
+  .modal{border-radius:20px;margin:auto;border-bottom:1px solid var(--border);}
+  .modal-overlay{align-items:center;padding:16px;}
+}
+</style>
+</head>
+<body>
+<div id="toast" class="toast"></div>
+<div class="app">
+  <header><h1>⚽ <span>Football Finance</span></h1><button class="save-btn" id="header-save-btn" onclick="saveData()">💾 Save</button></header>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('teams')">🏟️ Teams</button>
+    <button class="tab-btn" onclick="switchTab('tournaments')">🏆 Tourn</button>
+    <button class="tab-btn" onclick="switchTab('overview')">📊 Table</button>
+    <button class="tab-btn" onclick="switchTab('international')">🌍 Intl</button>
+    <button class="tab-btn" onclick="switchTab('ballondor')">🥇 B. d'Or</button>
+  </div>
+  
+  <div class="content-area">
+    <div id="tab-teams" class="tab-content active">
+      <div id="teams-list-view">
+        <div class="section-header"><h2>Teams</h2><button class="btn btn-primary btn-sm" onclick="openModal('addTeam')">+ Add Team</button></div>
+        <div class="action-bar">
+          <div class="row"><button class="btn btn-success" onclick="openCompletedTournament()">✅ Tournament</button><button class="btn btn-warning" onclick="doSeasonComplete()">📅 End Season</button></div>
+          <div class="row"><button class="btn btn-orange" onclick="openTransferModal()">🔄 Player Transfer / Swap</button></div>
+        </div>
+        <div id="teams-container"></div>
+      </div>
+      <div id="team-detail-view" class="team-detail-panel"></div>
+    </div>
+    
+    <div id="tab-tournaments" class="tab-content">
+      <div id="tourn-list-view">
+        <div class="section-header"><h2>Tournaments</h2><button class="btn btn-primary btn-sm" onclick="openModal('addTournament')">+ Create</button></div>
+        <div id="tournaments-container"></div>
+      </div>
+      <div id="tourn-detail-view" class="team-detail-panel"></div>
+    </div>
+    
+    <div id="tab-overview" class="tab-content">
+      <div class="section-header"><h2>📊 Global Standings</h2></div>
+      <div class="card table-wrap"><table><thead><tr><th>#</th><th>Team</th><th>Balance</th><th>Debt</th><th>Trophies</th><th>Status</th></tr></thead><tbody id="overview-tbody"></tbody></table></div>
+    </div>
+    
+    <div id="tab-international" class="tab-content">
+      <div id="intl-list-view"><div class="section-header"><h2>🌍 International</h2></div><div id="intl-container"></div></div>
+      <div id="intl-detail-view" class="team-detail-panel"></div>
+    </div>
+
+    <div id="tab-ballondor" class="tab-content">
+      <div class="section-header">
+          <h2 id="bdor-header-title">🥇 Ballon d'Or</h2>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-ghost btn-sm" onclick="openModal('bdor-settings')">⚙️ Settings</button>
+            <button class="btn btn-primary btn-sm" id="bdor-header-btn" onclick="openAddBdor()">+ Add Player</button>
+          </div>
+      </div>
+      <div class="sub-tabs" style="margin-bottom: 12px;">
+          <button class="sub-tab active" id="btn-bdor-ranking" onclick="setBdorTab('ranking')">📊 Ranking</button>
+          <button class="sub-tab" id="btn-bdor-winners" onclick="setBdorTab('winners')">🏆 Winners</button>
+      </div>
+      
+      <div id="bdor-ranking-view">
+        <div class="card table-wrap" style="padding:10px;">
+          <table>
+            <thead><tr><th style="width:30px;text-align:center;">#</th><th>Player / Team</th><th>Pts</th><th style="text-align:right;">⚙️</th></tr></thead>
+            <tbody id="bdor-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    
+      <div id="bdor-winners-view" style="display:none;">
+          <div id="bdor-winners-container"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-addTeam"><div class="modal"><div class="modal-handle"></div><h3>➕ Add New Team</h3>
+<div class="form-group"><label>Team Name</label><input class="input" id="newTeamName" placeholder="e.g. Real Madrid"></div>
+<div class="form-group"><label>Starting Balance (€M)</label><input class="input" id="newTeamBalance" type="number" value="0"></div>
+<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="addTeam()">Add Team</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-addTournament"><div class="modal"><div class="modal-handle"></div><h3>🏆 Create Tournament</h3>
+<div class="form-group"><label>Name</label><input class="input" id="newTournName" placeholder="e.g. Champions League"></div>
+<div class="form-group"><label>Type</label>
+<div class="type-toggle" id="tournTypeToggle"><button class="active" onclick="setTournType('league')">🏟️ League</button><button onclick="setTournType('knockout')">⚔️ Knockout</button></div></div>
+<div id="leagueConfig"><div class="form-group"><label>Number of Positions</label><input class="input" id="newTournPos" type="number" value="4" min="1" max="50"></div></div>
+<div id="knockoutConfig" style="display:none;">
+<div class="stage-note">🏆 Winner & 🥈 Finalist always included. Select additional stages:</div>
+<div id="koStagesList"></div></div>
+<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createTournament()">Create</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-completeTournament"><div class="modal"><div class="modal-handle"></div><h3>✅ Complete Tournament</h3>
+<div class="form-group"><label>Tournament</label><select class="input" id="selTournament" onchange="loadAssignment()"></select></div>
+<div id="assignContainer"></div>
+<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-success" onclick="applyResults()">Apply</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-funds"><div class="modal"><div class="modal-handle"></div><h3>💰 Manage Funds</h3>
+<p id="fundsInfo" style="color:var(--text2);font-size:0.82rem;margin-bottom:12px;"></p>
+<div class="form-group"><label>Amount (€M)</label><input class="input" id="fundsAmt" type="number" placeholder="50"></div>
+<input type="hidden" id="fundsTeamId">
+<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="doFunds('deduct')">➖ Deduct</button><button class="btn btn-success" onclick="doFunds('add')">➕ Add</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-transfer"><div class="modal"><div class="modal-handle"></div><h3>🔄 Transfer / Swap</h3>
+<div class="form-group"><label>Transfer Type</label>
+  <div class="type-toggle" id="trTypeToggle">
+    <button class="active" onclick="setTrType('money')">💰 Money</button>
+    <button onclick="setTrType('swap')">🔄 Swap</button>
+    <button onclick="setTrType('swap_money')">🔄+💰 Swap+Money</button>
+  </div>
+</div>
+<div class="form-group"><label>From (Team A)</label><select class="input" id="trFromTeam"></select></div>
+<div class="form-group"><label>To (Team B)</label><select class="input" id="trToTeam"></select></div>
+
+<div class="form-group" id="fg-player1"><label id="lbl-player1">Player leaving Team A</label><input class="input" id="trPlayer1" placeholder="e.g. Zlatan"></div>
+<div class="form-group" id="fg-player2" style="display:none;"><label id="lbl-player2">Player leaving Team B</label><input class="input" id="trPlayer2" placeholder="e.g. Eto'o"></div>
+<div class="form-group" id="fg-fee"><label id="lbl-fee">Fee Paid by Team B (€M)</label><input class="input" id="trAmount" type="number" placeholder="80"></div>
+
+<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-orange" onclick="doTransfer()">Complete</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-player-loan"><div class="modal"><div class="modal-handle"></div><h3>🤝 Loan Player</h3>
+<div class="form-group"><label>Player Name</label><input class="input" id="loanPlayerName" placeholder="e.g. Joao Felix"></div>
+<div class="form-group"><label>Owning Team (Lending)</label><select class="input" id="loanFromTeam" disabled></select></div>
+<div class="form-group"><label>Borrowing Team</label><select class="input" id="loanToTeam"></select></div>
+<div class="form-group"><label>Loan Fee per Season (€M)</label><input class="input" id="loanFee" type="number" placeholder="e.g. 10"></div>
+<div class="stage-note">This fee is transferred from the borrowing team to the lending team automatically upon "End Season".</div>
+<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="doPlayerLoan()">Confirm Loan</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-salary"><div class="modal"><div class="modal-handle"></div><h3>💸 Player Salary</h3>
+<input type="hidden" id="salId">
+<input type="hidden" id="salTeamId">
+<div class="form-group"><label>Player Name</label><input class="input" id="salPlayer" placeholder="e.g. K. De Bruyne"></div>
+<div class="form-group"><label>Wage per Year (€M)</label><input class="input" id="salWage" type="number" placeholder="e.g. 20"></div>
+<div class="form-group"><label>Reason</label>
+<select class="input" id="salReason">
+    <option value="renegotiation">Renegotiation (Until removed)</option>
+    <option value="signing">New signing (2 years)</option>
+    <option value="performance">Great performance (1 year)</option>
+</select>
+</div>
+<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveSalary()">Save Salary</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-intlTrophy"><div class="modal"><div class="modal-handle"></div><h3>🌍 International Trophy</h3>
+<p id="intlTrophyInfo" style="color:var(--text2);font-size:0.82rem;margin-bottom:12px;"></p>
+<div class="form-group"><label>Trophy Name</label><input class="input" id="intlTrophyName" placeholder="e.g. World Cup"></div>
+<div class="form-group"><label>Year</label><input class="input" id="intlTrophyYear" type="number"></div>
+<input type="hidden" id="intlTrophyTeam">
+<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="addIntlTrophy()">Add</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-debt"><div class="modal"><div class="modal-handle"></div><h3>🏦 Take Loan</h3>
+<p id="debtInfo" style="color:var(--text2);font-size:0.82rem;margin-bottom:8px;"></p>
+<div class="form-group"><label>Loan Amount (€M)</label><input class="input" id="debtAmt" type="number" placeholder="100"></div>
+<div class="auto-loan-note" style="margin-bottom:8px;">⚠️ 15% interest charged every season.</div>
+<input type="hidden" id="debtTeamId">
+<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="takeLoan()">Take Loan</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-payDebt"><div class="modal"><div class="modal-handle"></div><h3>💳 Pay Debt</h3>
+<p id="payDebtInfo" style="color:var(--text2);font-size:0.82rem;margin-bottom:12px;"></p>
+<div class="form-group"><label>Payment (€M)</label><input class="input" id="payDebtAmt" type="number" placeholder="50"></div>
+<input type="hidden" id="payDebtTeamId">
+<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-success" onclick="payDebt()">Pay</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-addWinner"><div class="modal"><div class="modal-handle"></div><h3>🏆 Add Winner</h3>
+<p id="addWinnerInfo" style="color:var(--text2);font-size:0.82rem;margin-bottom:12px;"></p>
+<div class="form-group"><label>Team</label><select class="input" id="winnerTeamSel"></select></div>
+<div class="form-group"><label>Year</label><input class="input" id="winnerYear" type="number"></div>
+<input type="hidden" id="winnerTournId">
+<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="addWinner()">Add Winner</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-addBdorWinner"><div class="modal"><div class="modal-handle"></div><h3>🥇 Add Ballon d'Or Winner</h3>
+<div class="form-group"><label>Player Name</label><input class="input" id="bdorWinnerName" placeholder="e.g. L. Messi"></div>
+<div class="form-group"><label>Team</label><select class="input" id="bdorWinnerTeamSel"></select></div>
+<div class="form-group"><label>Year</label><input class="input" id="bdorWinnerYear" type="number"></div>
+<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="addBdorWinner()">Add Winner</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-bdor-settings"><div class="modal"><div class="modal-handle"></div><h3>⚙️ Ballon d'Or Point Settings</h3>
+  <div class="form-group"><label>Points per Goal</label><input class="input" id="setBdorGoal" type="number"></div>
+  <div class="form-group"><label>Points per Assist</label><input class="input" id="setBdorAssist" type="number"></div>
+  <div class="form-group"><label>Points per Clean Sheet</label><input class="input" id="setBdorCS" type="number"></div>
+  <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveBdorSettings()">Save Settings</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-bdor-player"><div class="modal"><div class="modal-handle"></div><h3 id="bdorModalTitle">🥇 Add Player Stats</h3>
+<input type="hidden" id="bdorId">
+<div class="form-group"><label>Player Name</label><input class="input" id="bdorName" placeholder="e.g. L. Messi"></div>
+<div class="form-group"><label>Team</label><select class="input" id="bdorTeam"></select></div>
+<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap: wrap;">
+  <div class="form-group" style="flex:1;min-width:45%;margin-bottom:8px;"><label>Goals</label><input class="input" id="bdorGoals" type="number" value="0"></div>
+  <div class="form-group" style="flex:1;min-width:45%;margin-bottom:8px;"><label>Assists</label><input class="input" id="bdorAssists" type="number" value="0"></div>
+  <div class="form-group" style="flex:1;min-width:45%;margin-bottom:8px;"><label>Clean Sheets</label><input class="input" id="bdorCS" type="number" value="0"></div>
+  <div class="form-group" style="flex:1;min-width:45%;margin-bottom:8px;"><label>Bonus Pts</label><input class="input" id="bdorBonus" type="number" value="0"></div>
+</div>
+<div id="bdor-tournaments-container"></div>
+<div class="modal-actions" style="margin-top:10px;">
+  <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+  <button class="btn btn-primary" onclick="saveBdor()">Save</button>
+</div>
+</div></div>
+
+<script>
+// === CONSTANTS ===
+const INTL=["🇧🇷 Brasil","🇦🇷 Argentina","🇫🇷 France","🇩🇪 Germany","🇬🇧 England","🇪🇸 Spain","🇮🇹 Italy","🇵🇹 Portugal","🇲🇽 Mexico","🇳🇱 Netherlands"];
+const KO_STAGES=[
+  {key:'winner',label:'🏆 Winner',fixed:true,unique:true},
+  {key:'finalist',label:'🥈 Finalist',fixed:true,unique:true},
+  {key:'semi',label:'🏅 Semi-Finalists',fixed:false,unique:false},
+  {key:'quarter',label:'🎖️ Quarter-Finalists',fixed:false,unique:false},
+  {key:'r16',label:'📋 Round of 16',fixed:false,unique:false},
+  {key:'group',label:'📊 Group Stage',fixed:false,unique:false}
+];
+
+const DB='ffm_v12';
+let D, currentTournType='league', selectedKoStages=new Set(), expandedWinnerTeam=null;
+let bdorTab = 'ranking';
+let expandedBdorWinner = null;
+let currentTrType = 'money';
+
+// === CORE SYSTEM ===
+function load(){
+  try{const s=localStorage.getItem(DB);if(s)D=JSON.parse(s);}catch(e){}
+  if(!D)D={teams:[],tournaments:[],applied:[],transfers:[],loans:[],salaries:[],intl:{},ballonDor:[],bdorWinners:[], year: 9, bdorSettings: { goal: 2, assist: 1, cs: 1 }};
+  if(!D.teams)D.teams=[];if(!D.tournaments)D.tournaments=[];
+  if(!Array.isArray(D.applied))D.applied=[];
+  if(!D.transfers)D.transfers=[];if(!D.loans)D.loans=[];if(!D.salaries)D.salaries=[];
+  if(!D.intl)D.intl={};if(!D.ballonDor)D.ballonDor=[];if(!D.bdorWinners)D.bdorWinners=[];
+  if(!D.year) D.year = 9;
+  if(!D.bdorSettings) D.bdorSettings = { goal: 2, assist: 1, cs: 1 };
+  
+  D.teams.forEach(t=>{if(typeof t.debt!=='number')t.debt=0;if(!t.trophies)t.trophies=[];});
+  D.tournaments.forEach(t=>{
+      if(!t.type) t.type='league';
+      if(!t.stages) t.stages=null;
+      if(!t.winners) t.winners=[];
+      if(!t.bdorPts) t.bdorPts=Array(t.prizes.length).fill(0);
+  });
+  INTL.forEach(t=>{if(!D.intl[t])D.intl[t]=[];});
+  updateHeaderYear();
+  popBdorSettings();
+}
+
+function updateHeaderYear() {
+  const btn = document.getElementById('header-save-btn');
+  if(btn) btn.textContent = `💾 Save (Yr ${D.year})`;
+}
+
+function save(){try{localStorage.setItem(DB,JSON.stringify(D));}catch(e){}}
+function saveData(){save();toast('💾 Saved!','green');}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function fm(n){const v=Number(n);if(isNaN(v))return'0';return v%1===0?v.toString():v.toFixed(1);}
+function bc(b){return Number(b)>=200?'bal-high':Number(b)>=120?'bal-med':'bal-low';}
+function bgc(b){return Number(b)>=200?'badge-green':Number(b)>=120?'badge-yellow':'badge-red';}
+function st(b){return Number(b)>=200?'Healthy':Number(b)>=120?'Moderate':'Low';}
+function ord(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function toast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast t-'+(type||'blue')+' show';clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400);}
+
+function autoLoan(team){if(Number(team.balance)<120){team.debt=Number(team.debt||0)+150;team.balance=Number(team.balance)+150;D.transfers.push({id:uid(),type:'bank_loan',player:'AUTO LOAN',fromId:'BANK',toId:team.id,fromName:'🏦 Bank',toName:team.name,amount:150,date:new Date().toISOString(),isLoan:true});save();toast(`⚠️ ${team.name} auto-loan +€150M`,'red');}}
+function getStageLabel(key){const f=KO_STAGES.find(s=>s.key===key);return f?f.label:key;}
+function getPositionLabels(t){if(t.type==='knockout'&&t.stages)return t.stages.map(s=>getStageLabel(s));return t.prizes.map((_,i)=>ord(i+1)+' Place');}
+function getTeamTrophies(teamId){const tr=[];D.tournaments.forEach(t=>{(t.winners||[]).forEach(w=>{if(w.teamId===teamId)tr.push({tournName:t.name,year:w.year,id:w.id,tournId:t.id});});});return tr;}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',['teams','tournaments','overview','international','ballondor'][i]===tab));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(tab==='teams'){showList();renderTeams();}
+  if(tab==='tournaments'){showTournList();renderTourn();}
+  if(tab==='overview')renderOverview();
+  if(tab==='international'){showIntlList();renderIntl();}
+  if(tab==='ballondor') setBdorTab(bdorTab);
+}
+function openModal(id){
+  closeModal();
+  if(id==='addTournament'){currentTournType='league';selectedKoStages=new Set();renderTournTypeUI();renderKoStages();}
+  document.getElementById('modal-'+id).classList.add('show');
+}
+function closeModal(){document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('show'));}
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)closeModal();});});
+
+// === TEAMS ===
+function renderTeams(){
+  const c=document.getElementById('teams-container');
+  if(!D.teams.length){c.innerHTML='<div class="empty-state"><div class="emoji">🏟️</div><p>No teams yet</p></div>';return;}
+  c.innerHTML=D.teams.map(t=>{const d=Number(t.debt||0),trophies=getTeamTrophies(t.id);
+    return`<div class="team-card" onclick="openDetail('${t.id}')"><div class="team-card-inner"><div><h3>${esc(t.name)}</h3><div class="team-meta"><span>🏆 ${trophies.length}</span>${d>0?`<span style="color:var(--red)">🏦 €${fm(d)}M</span>`:''}</div></div><div class="team-balance ${bc(t.balance)}">€${fm(t.balance)}M</div></div></div>`;}).join('');
+}
+function showList(){document.getElementById('teams-list-view').style.display='block';document.getElementById('team-detail-view').classList.remove('active');}
+function addTeam(){const n=document.getElementById('newTeamName').value.trim(),b=parseFloat(document.getElementById('newTeamBalance').value)||0;if(!n)return alert('Enter name');if(D.teams.find(t=>t.name.toLowerCase()===n.toLowerCase()))return alert('Team exists');const team={id:uid(),name:n,balance:Number(b),debt:0,trophies:[]};D.teams.push(team);save();autoLoan(team);document.getElementById('newTeamName').value='';document.getElementById('newTeamBalance').value='0';closeModal();renderTeams();toast('✅ Added!','green');}
+function deleteTeam(id){const t=D.teams.find(x=>x.id===id);if(confirm(`Delete "${t.name}"?`)){D.teams=D.teams.filter(x=>x.id!==id);save();showList();renderTeams();toast('🗑️ Deleted','red');}}
+
+function openDetail(id){
+  document.getElementById('teams-list-view').style.display='none';
+  const p=document.getElementById('team-detail-view');p.classList.add('active');
+  const t=D.teams.find(x=>x.id===id),d=Number(t.debt||0),interest=Math.round(d*0.15*10)/10,trophies=getTeamTrophies(t.id);
+  p.innerHTML=`<button class="back-btn" onclick="showList();renderTeams();">← Back</button>
+  <div class="card stat-card"><h3 style="font-size:1.15rem;margin-bottom:2px;">${esc(t.name)}</h3>
+  <div class="stat-value ${bc(t.balance)}">€${fm(t.balance)}M</div><span class="badge ${bgc(t.balance)}">${st(t.balance)}</span>
+  ${d>0?`<div style="color:var(--red);margin-top:8px;font-size:0.82rem;">🏦 Debt: €${fm(d)}M · Interest: €${fm(interest)}M/season</div>`:''}</div>
+  <div class="detail-menu">
+    <div class="dm-btn" onclick="openFM('${t.id}')"><span class="dm-icon">💰</span><span class="dm-label">Funds</span></div>
+    <div class="dm-btn" onclick="openLP('${t.id}')"><span class="dm-icon">🤝</span><span class="dm-label">Loans</span></div>
+    <div class="dm-btn" onclick="openSP('${t.id}')"><span class="dm-icon">💸</span><span class="dm-label">Salary</span></div>
+    <div class="dm-btn" onclick="openTC('${t.id}')"><span class="dm-icon">🏆</span><span class="dm-label">Trophies</span></div>
+    <div class="dm-btn" onclick="openHist('${t.id}')"><span class="dm-icon">📜</span><span class="dm-label">History</span></div>
+    <div class="dm-btn dm-debt" onclick="openDP('${t.id}')"><span class="dm-icon">🏦</span><span class="dm-label">Debt</span></div>
+  </div><div id="team-sub" style="margin-top:14px;"></div>
+  <button class="btn btn-danger btn-block" style="margin-top:18px;" onclick="deleteTeam('${t.id}')">🗑️ Delete Team</button>`;
+}
+
+function openFM(id){const t=D.teams.find(x=>x.id===id);document.getElementById('fundsInfo').textContent=`${t.name} — €${fm(t.balance)}M`;document.getElementById('fundsTeamId').value=id;document.getElementById('fundsAmt').value='';openModal('funds');}
+function doFunds(type){const id=document.getElementById('fundsTeamId').value,amt=parseFloat(document.getElementById('fundsAmt').value),t=D.teams.find(x=>x.id===id);if(isNaN(amt)||amt<=0)return alert('Enter amount');t.balance=type==='add'?Number(t.balance)+amt:Number(t.balance)-amt;save();autoLoan(t);closeModal();openDetail(id);toast(type==='add'?'💚 Added':'🔴 Deducted',type==='add'?'green':'red');}
+
+function openSP(id) {
+    const t = D.teams.find(x => x.id === id);
+    const sals = D.salaries.filter(x => x.teamId === id);
+    let totalWage = sals.reduce((sum, s) => sum + s.wage, 0);
+
+    let h = `<div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 style="font-size:0.95rem;">💸 Salary Bill: €${fm(totalWage)}M/yr</h3>
+            <button class="btn btn-primary btn-sm" onclick="openSalaryModal('${id}')">+ Add Player</button>
+        </div>`;
+
+    if (!sals.length) {
+        h += `<div style="font-size:0.75rem;color:var(--text3);padding:4px 0;">No salaries added</div>`;
+    }
+
+    sals.forEach(s => {
+        let reasonStr = s.reason === 'performance' ? `Great performance (${s.yearsLeft} yr)` :
+                        s.reason === 'signing' ? `New signing (${s.yearsLeft} yrs)` :
+                        `Renegotiation (Until removed)`;
+        h += `<div class="history-item" style="display:flex;justify-content:space-between;align-items:center;border-left:3px solid var(--accent2);">
+            <div>
+                <div><strong>${esc(s.player)}</strong></div>
+                <div style="font-size:0.7rem;color:var(--text2);">€${fm(s.wage)}M/yr · ${reasonStr}</div>
+            </div>
+            <div style="display:flex;gap:4px;">
+                <button class="btn btn-ghost btn-sm" onclick="openSalaryModal('${id}', '${s.id}')">✏️</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteSalary('${s.id}', '${id}')">✕</button>
+            </div>
+        </div>`;
+    });
+
+    h += `</div>`;
+    document.getElementById('team-sub').innerHTML = h;
+}
+
+function openSalaryModal(teamId, salaryId = null) {
+    const t = D.teams.find(x => x.id === teamId);
+    document.getElementById('salTeamId').value = teamId;
+    if (salaryId) {
+        const s = D.salaries.find(x => x.id === salaryId);
+        document.getElementById('salId').value = s.id;
+        document.getElementById('salPlayer').value = s.player;
+        document.getElementById('salWage').value = s.wage;
+        document.getElementById('salReason').value = s.reason;
+    } else {
+        document.getElementById('salId').value = '';
+        document.getElementById('salPlayer').value = '';
+        document.getElementById('salWage').value = '';
+        document.getElementById('salReason').value = 'renegotiation';
+    }
+    openModal('salary');
+}
+
+function saveSalary() {
+    const teamId = document.getElementById('salTeamId').value;
+    const id = document.getElementById('salId').value || uid();
+    const player = document.getElementById('salPlayer').value.trim();
+    const wage = parseFloat(document.getElementById('salWage').value) || 0;
+    const reason = document.getElementById('salReason').value;
+
+    if (!player) return alert("Enter player name");
+    if (wage <= 0) return alert("Enter valid wage");
+
+    let yearsLeft = -1;
+    if (reason === 'performance') yearsLeft = 1;
+    if (reason === 'signing') yearsLeft = 2;
+
+    const salObj = { id, teamId, player, wage, reason, yearsLeft };
+
+    const existingIdx = D.salaries.findIndex(x => x.id === id);
+    if (existingIdx >= 0) {
+        D.salaries[existingIdx] = salObj;
+    } else {
+        D.salaries.push(salObj);
+    }
+
+    save();
+    closeModal();
+    openSP(teamId);
+    toast("Salary saved", "green");
+}
+
+function deleteSalary(id, teamId) {
+    if(!confirm("Remove this salary?")) return;
+    D.salaries = D.salaries.filter(x => x.id !== id);
+    save();
+    openSP(teamId);
+}
+
+function openDP(id){
+  const t=D.teams.find(x=>x.id===id),d=Number(t.debt||0),int=Math.round(d*0.15*10)/10,sub=document.getElementById('team-sub');
+  sub.innerHTML=`<div class="debt-panel"><h3 style="font-size:0.95rem;margin-bottom:12px;color:var(--red);">🏦 Debt Management</h3>
+  <div style="text-align:center;margin-bottom:14px;"><div style="font-size:0.76rem;color:var(--text2);">Outstanding Debt</div><div class="debt-big">€${fm(d)}M</div>
+  ${d>0?`<div style="font-size:0.76rem;color:var(--red);margin-top:4px;">Season interest (15%): €${fm(int)}M</div><div style="font-size:0.72rem;color:var(--text2);">Total season cost: €${fm(120+int)}M</div>`:'<div style="color:var(--green);font-size:0.82rem;margin-top:6px;">✅ Debt free!</div>'}</div>
+  <div style="display:flex;gap:8px;"><button class="btn btn-danger" style="flex:1;" onclick="openDebtM('${t.id}')">🏦 Take Loan</button>${d>0?`<button class="btn btn-success" style="flex:1;" onclick="openPayM('${t.id}')">💳 Pay Debt</button>`:''}</div></div>
+  ${d>0?`<div class="card"><h3 style="font-size:0.88rem;margin-bottom:8px;">📊 Breakdown</h3><div class="debt-info-row"><span>Debt</span><span class="debt-col">€${fm(d)}M</span></div><div class="debt-info-row"><span>Rate</span><span style="color:var(--yellow);">15%</span></div><div class="debt-info-row"><span>Interest</span><span class="debt-col">€${fm(int)}M</span></div><div class="debt-info-row"><span>Season Cost</span><span>€120M</span></div><div class="debt-info-row"><span style="font-weight:700;">Total</span><span class="debt-col" style="font-weight:800;">€${fm(120+int)}M</span></div></div>`:''}
+  <div class="auto-loan-note">⚠️ Auto-loan of €150M if balance drops below €120M</div>`;
+}
+function openDebtM(id){const t=D.teams.find(x=>x.id===id);document.getElementById('debtInfo').textContent=`${t.name} — Debt: €${fm(t.debt||0)}M`;document.getElementById('debtTeamId').value=id;document.getElementById('debtAmt').value='';openModal('debt');}
+function takeLoan(){const id=document.getElementById('debtTeamId').value,amt=parseFloat(document.getElementById('debtAmt').value),t=D.teams.find(x=>x.id===id);if(isNaN(amt)||amt<=0)return alert('Enter valid amount');t.debt=Number(t.debt||0)+amt;t.balance=Number(t.balance)+amt;D.transfers.push({id:uid(),type:'bank_loan',player:`LOAN €${fm(amt)}M`,fromId:'BANK',toId:t.id,fromName:'🏦 Bank',toName:t.name,amount:amt,date:new Date().toISOString(),isLoan:true});save();closeModal();openDetail(id);setTimeout(()=>openDP(id),50);toast(`🏦 Loan €${fm(amt)}M`,'red');}
+function openPayM(id){const t=D.teams.find(x=>x.id===id);document.getElementById('payDebtInfo').textContent=`${t.name} — Debt: €${fm(t.debt||0)}M | Bal: €${fm(t.balance)}M`;document.getElementById('payDebtTeamId').value=id;document.getElementById('payDebtAmt').value='';openModal('payDebt');}
+function payDebt(){const id=document.getElementById('payDebtTeamId').value,amt=parseFloat(document.getElementById('payDebtAmt').value),t=D.teams.find(x=>x.id===id),d=Number(t.debt||0);if(isNaN(amt)||amt<=0)return alert('Enter valid amount');if(amt>d)return alert(`Debt is only €${fm(d)}M`);if(amt>Number(t.balance))return alert('Insufficient balance');t.debt=d-amt;t.balance=Number(t.balance)-amt;D.transfers.push({id:uid(),type:'bank_loan',player:`PAYMENT €${fm(amt)}M`,fromId:t.id,toId:'BANK',fromName:t.name,toName:'🏦 Bank',amount:amt,date:new Date().toISOString(),isLoan:true});save();autoLoan(t);closeModal();openDetail(id);setTimeout(()=>openDP(id),50);toast(`💳 Paid €${fm(amt)}M`,'green');}
+
+// === PLAYER LOANS ===
+function openLP(id){
+  const t = D.teams.find(x=>x.id===id), loansIn = D.loans.filter(x=>x.toId === id), loansOut = D.loans.filter(x=>x.fromId === id);
+  let h = `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h3 style="font-size:0.95rem;">🤝 Player Loans</h3><button class="btn btn-primary btn-sm" onclick="openPlayerLoanModal('${id}')">+ New Loan</button></div>`;
+  h += `<h4 style="font-size:0.8rem;margin-top:10px;color:var(--text2);">⬇️ Loaned In (Borrowing)</h4>`;
+  if(!loansIn.length) h += `<div style="font-size:0.75rem;color:var(--text3);padding:4px 0;">No players loaned in</div>`;
+  loansIn.forEach(L => {
+     const fromT = D.teams.find(x=>x.id===L.fromId);
+     h += `<div class="history-item" style="display:flex;justify-content:space-between;align-items:center;border-left:3px solid var(--accent);">
+        <div><div><strong>${esc(L.player)}</strong></div><div style="font-size:0.7rem;color:var(--text2);">From ${fromT?esc(fromT.name):'Unknown'} · €${fm(L.fee)}M/season</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="returnPlayerLoan('${L.id}', '${id}')">Return</button></div>`;
+  });
+  h += `<h4 style="font-size:0.8rem;margin-top:16px;color:var(--text2);">⬆️ Loaned Out (Lending)</h4>`;
+  if(!loansOut.length) h += `<div style="font-size:0.75rem;color:var(--text3);padding:4px 0;">No players loaned out</div>`;
+  loansOut.forEach(L => {
+     const toT = D.teams.find(x=>x.id===L.toId);
+     h += `<div class="history-item" style="display:flex;justify-content:space-between;align-items:center;border-left:3px solid var(--yellow);">
+        <div><div><strong>${esc(L.player)}</strong></div><div style="font-size:0.7rem;color:var(--text2);">At ${toT?esc(toT.name):'Unknown'} · +€${fm(L.fee)}M/season</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="returnPlayerLoan('${L.id}', '${id}')">Recall</button></div>`;
+  });
+  h += `</div>`; document.getElementById('team-sub').innerHTML = h;
+}
+
+function openPlayerLoanModal(id){
+    if(D.teams.length < 2) return alert('Need 2+ teams');
+    const t = D.teams.find(x=>x.id===id);
+    document.getElementById('loanPlayerName').value = '';
+    document.getElementById('loanFromTeam').innerHTML = `<option value="${t.id}">${esc(t.name)}</option>`;
+    document.getElementById('loanToTeam').innerHTML = D.teams.filter(x=>x.id!==id).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
+    document.getElementById('loanFee').value = '';
+    openModal('player-loan');
+}
+
+function doPlayerLoan(){
+    const pName = document.getElementById('loanPlayerName').value.trim();
+    const fromId = document.getElementById('loanFromTeam').value;
+    const toId = document.getElementById('loanToTeam').value;
+    const fee = parseFloat(document.getElementById('loanFee').value) || 0;
+    
+    if(!pName) return alert('Enter player name');
+    
+    const loan = {id: uid(), player: pName, fromId, toId, fee, date: new Date().toISOString()};
+    D.loans.push(loan);
+    D.transfers.push({id: uid(), type: 'loan_start', player: pName, fromId, toId, fromName: D.teams.find(x=>x.id===fromId).name, toName: D.teams.find(x=>x.id===toId).name, amount: fee, date: new Date().toISOString()});
+    save();
+    closeModal();
+    openDetail(fromId);
+    setTimeout(()=>openLP(fromId), 50);
+    toast('🤝 Player Loaned!','blue');
+}
+
+function returnPlayerLoan(loanId, teamId){
+    if(!confirm('Return this loaned player? No more fees will be deducted.')) return;
+    const loan = D.loans.find(x=>x.id===loanId);
+    D.loans = D.loans.filter(x=>x.id!==loanId);
+    D.transfers.push({id: uid(), type: 'loan_return', player: loan.player, fromId: loan.toId, toId: loan.fromId, fromName: D.teams.find(x=>x.id===loan.toId)?.name||'', toName: D.teams.find(x=>x.id===loan.fromId)?.name||'', amount: 0, date: new Date().toISOString()});
+    save();
+    openDetail(teamId);
+    setTimeout(()=>openLP(teamId), 50);
+    toast('🔙 Player Returned','orange');
+}
+
+
+function openTC(id){
+  const sub=document.getElementById('team-sub'),trophies=getTeamTrophies(id);
+  let h=`<div class="card"><h3 style="font-size:0.95rem;margin-bottom:10px;">🏆 Trophy Cabinet (${trophies.length})</h3>`;
+  if(!trophies.length)h+='<p style="color:var(--text2);text-align:center;padding:12px;">No trophies yet. Add winners in Tourn tab.</p>';
+  else{
+    const grouped={};
+    trophies.forEach(tr=>{if(!grouped[tr.tournName])grouped[tr.tournName]=[];grouped[tr.tournName].push(tr);});
+    Object.keys(grouped).forEach(tn=>{
+      const items=grouped[tn].sort((a,b)=>b.year-a.year);
+      h+=`<div class="trophy-item" style="flex-direction:column;align-items:flex-start;gap:4px;">
+        <div style="display:flex;justify-content:space-between;width:100%;align-items:center;">
+          <span style="font-weight:700;">🏆 ${esc(tn)}</span><span class="badge badge-yellow">${items.length}x</span>
+        </div>
+        <div style="font-size:0.76rem;color:var(--text2);">${items.map(i=>i.year).join(', ')}</div>
+      </div>`;
+    });
+  }
+  h+='</div>';sub.innerHTML=h;
+}
+
+function openHist(id){
+  const sub=document.getElementById('team-sub'),trs=D.transfers.filter(tr=>tr.fromId===id||tr.toId===id);
+  let h='<div class="card"><h3 style="font-size:0.95rem;margin-bottom:10px;">📜 History</h3>';
+  if(!trs.length)h+='<p style="color:var(--text2);text-align:center;padding:12px;">No history</p>';
+  else {
+      h+=[...trs].reverse().map(tr=>{
+        const isBuyer = tr.toId === id;
+        const other = isBuyer ? tr.fromName : tr.toName;
+        
+        if(tr.type === 'bank_loan' || tr.isLoan){
+            const isTake = tr.fromId === 'BANK' && tr.toId === id;
+            return `<div class="history-item" style="border-left:3px solid var(--red);"><div>${isTake?'🏦 Bank Loan':'💳 Debt Payment'}: <strong>€${fm(tr.amount)}M</strong></div><div style="color:var(--text2);font-size:0.72rem;margin-top:2px;">${new Date(tr.date).toLocaleDateString()}</div></div>`;
+        }
+        if(tr.type === 'salary_bill') {
+            return `<div class="history-item" style="border-left:3px solid var(--orange);"><div>💸 <strong>Salary Bill</strong></div><div style="color:var(--text2);font-size:0.72rem;margin-top:2px;">-€${fm(tr.amount)}M · ${new Date(tr.date).toLocaleDateString()}</div></div>`;
+        }
+        if(tr.type === 'swap' || tr.type === 'swap_money'){
+            const moneyStr = tr.type === 'swap_money' ? (isBuyer ? ` · -€${fm(tr.amount)}M` : ` · +€${fm(tr.amount)}M`) : '';
+            return `<div class="history-item" style="border-left:3px solid var(--accent);"><div>🔄 <strong>Swap</strong> with ${esc(other)}</div><div style="color:var(--text2);font-size:0.72rem;margin-top:2px;">${esc(tr.player)}${moneyStr} · ${new Date(tr.date).toLocaleDateString()}</div></div>`;
+        }
+        if(tr.type === 'loan_start'){
+            const icon = isBuyer ? '📥 Loan In' : '📤 Loan Out';
+            return `<div class="history-item" style="border-left:3px solid var(--yellow);"><div>${icon}: <strong>${esc(tr.player)}</strong> ${isBuyer?'from':'to'} ${esc(other)}</div><div style="color:var(--text2);font-size:0.72rem;margin-top:2px;">Fee: €${fm(tr.amount)}M/season · ${new Date(tr.date).toLocaleDateString()}</div></div>`;
+        }
+        if(tr.type === 'loan_return'){
+            const wasLender = tr.toId === id;
+            const otherR = wasLender ? tr.fromName : tr.toName;
+            return `<div class="history-item" style="border-left:3px solid var(--orange);"><div>🔙 Returned: <strong>${esc(tr.player)}</strong> ${wasLender?'from':'to'} ${esc(otherR)}</div><div style="color:var(--text2);font-size:0.72rem;margin-top:2px;">${new Date(tr.date).toLocaleDateString()}</div></div>`;
+        }
+        
+        const icon = isBuyer ? '🟢 Signed' : '🔴 Sold';
+        return `<div class="history-item"><div>${icon} <strong>${esc(tr.player)}</strong> ${isBuyer?'from':'to'} ${esc(other)}</div><div style="color:var(--text2);font-size:0.72rem;margin-top:2px;">${isBuyer?'-':'+'} €${fm(tr.amount)}M · ${new Date(tr.date).toLocaleDateString()}</div></div>`;
+      }).join('');
+  }
+  h+='</div>';sub.innerHTML=h;
+}
+
+function setTrType(type){
+    currentTrType = type;
+    const btns = document.querySelectorAll('#trTypeToggle button');
+    btns[0].classList.toggle('active', type === 'money');
+    btns[1].classList.toggle('active', type === 'swap');
+    btns[2].classList.toggle('active', type === 'swap_money');
+    
+    if(type === 'money'){
+        document.getElementById('fg-player2').style.display = 'none';
+        document.getElementById('fg-fee').style.display = 'block';
+        document.getElementById('lbl-player1').textContent = 'Player Name';
+        document.getElementById('lbl-fee').textContent = 'Fee Paid by Team B (€M)';
+    } else if(type === 'swap'){
+        document.getElementById('fg-player2').style.display = 'block';
+        document.getElementById('fg-fee').style.display = 'none';
+        document.getElementById('lbl-player1').textContent = 'Player leaving Team A';
+        document.getElementById('lbl-player2').textContent = 'Player leaving Team B';
+    } else {
+        document.getElementById('fg-player2').style.display = 'block';
+        document.getElementById('fg-fee').style.display = 'block';
+        document.getElementById('lbl-player1').textContent = 'Player leaving Team A';
+        document.getElementById('lbl-player2').textContent = 'Player leaving Team B';
+        document.getElementById('lbl-fee').textContent = 'Money Paid by Team B to Team A (€M)';
+    }
+}
+
+function openTransferModal(){
+    if(D.teams.length<2) return alert('Need 2+ teams');
+    popTrSel();
+    document.getElementById('trPlayer1').value='';
+    document.getElementById('trPlayer2').value='';
+    document.getElementById('trAmount').value='';
+    setTrType('money');
+    openModal('transfer');
+}
+function popTrSel(){const o=D.teams.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('');document.getElementById('trFromTeam').innerHTML=o;document.getElementById('trToTeam').innerHTML=o;if(D.teams.length>1)document.getElementById('trToTeam').selectedIndex=1;}
+function doTransfer(){
+    const fi=document.getElementById('trFromTeam').value, ti=document.getElementById('trToTeam').value;
+    if(fi===ti) return alert('Cannot transfer within the same team');
+    const f=D.teams.find(x=>x.id===fi), t=D.teams.find(x=>x.id===ti);
+    
+    let amt = parseFloat(document.getElementById('trAmount').value) || 0;
+    const p1 = document.getElementById('trPlayer1').value.trim();
+    const p2 = document.getElementById('trPlayer2').value.trim();
+    
+    if(currentTrType === 'money'){
+        if(!p1) return alert('Enter player name');
+        if(isNaN(amt)||amt<=0) return alert('Enter valid fee');
+        t.balance -= amt; f.balance += amt;
+        D.transfers.push({id:uid(), type: 'standard', player:p1, fromId:fi, toId:ti, fromName:f.name, toName:t.name, amount:amt, date:new Date().toISOString()});
+        toast(`🔄 ${p1} → ${t.name}!`,'blue');
+    } 
+    else if(currentTrType === 'swap'){
+        if(!p1 || !p2) return alert('Enter both player names');
+        D.transfers.push({id:uid(), type: 'swap', player:`${p1} ↔ ${p2}`, fromId:fi, toId:ti, fromName:f.name, toName:t.name, amount:0, date:new Date().toISOString()});
+        toast(`🔄 Swapped ${p1} & ${p2}`,'blue');
+    }
+    else if(currentTrType === 'swap_money'){
+        if(!p1 || !p2) return alert('Enter both player names');
+        if(isNaN(amt)||amt<=0) return alert('Enter valid fee');
+        t.balance -= amt; f.balance += amt;
+        D.transfers.push({id:uid(), type: 'swap_money', player:`${p1} ↔ ${p2}`, fromId:fi, toId:ti, fromName:f.name, toName:t.name, amount:amt, date:new Date().toISOString()});
+        toast(`🔄 Swapped + €${fm(amt)}M`,'blue');
+    }
+    
+    save();autoLoan(t);closeModal();renderTeams();
+}
+
+// === TOURNAMENTS ===
+function setTournType(type){currentTournType=type;renderTournTypeUI();if(type==='knockout')renderKoStages();}
+function renderTournTypeUI(){const btns=document.querySelectorAll('#tournTypeToggle button');btns[0].classList.toggle('active',currentTournType==='league');btns[1].classList.toggle('active',currentTournType==='knockout');document.getElementById('leagueConfig').style.display=currentTournType==='league'?'block':'none';document.getElementById('knockoutConfig').style.display=currentTournType==='knockout'?'block':'none';}
+function renderKoStages(){document.getElementById('koStagesList').innerHTML=KO_STAGES.filter(s=>!s.fixed).map(s=>`<div class="ko-stage-item ${selectedKoStages.has(s.key)?'selected':''}" onclick="toggleKoStage('${s.key}')"><div class="ko-check">${selectedKoStages.has(s.key)?'✓':''}</div><div class="ko-info"><div class="ko-name">${s.label}</div><div class="ko-hint">${s.unique?'Only 1 team':'Multiple teams'}</div></div></div>`).join('');}
+function toggleKoStage(key){if(selectedKoStages.has(key))selectedKoStages.delete(key);else selectedKoStages.add(key);renderKoStages();}
+
+function showTournList(){document.getElementById('tourn-list-view').style.display='block';document.getElementById('tourn-detail-view').classList.remove('active');}
+function renderTourn(){
+  const c=document.getElementById('tournaments-container');
+  if(!D.tournaments.length){c.innerHTML='<div class="empty-state"><div class="emoji">🏆</div><p>No tournaments</p></div>';return;}
+  c.innerHTML=D.tournaments.map(t=>{
+    const ap=isApplied(t.id),typeBadge=t.type==='knockout'?'<span class="badge badge-purple">⚔️ Knockout</span>':'<span class="badge badge-blue">🏟️ League</span>';
+    const winCount=(t.winners||[]).length;
+    return`<div class="tourn-card" onclick="openTournDetail('${t.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><h3 style="font-size:0.95rem;">🏆 ${esc(t.name)}</h3>
+        <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap;">${typeBadge}${ap?'<span class="badge badge-green">✅ Applied</span>':''}${winCount?`<span class="badge badge-yellow">${winCount} winners</span>`:''}</div></div>
+        <span style="color:var(--text2);font-size:1.2rem;">›</span>
+      </div></div>`;
+  }).join('');
+}
+function isApplied(id){return D.applied.indexOf(id)!==-1;}
+
+function createTournament(){
+  const n=document.getElementById('newTournName').value.trim();if(!n)return alert('Enter name');
+  let prizes,bdorPts,stages=null,type=currentTournType;
+  if(type==='league'){
+      const p=parseInt(document.getElementById('newTournPos').value);
+      if(!p||p<1)return alert('Invalid positions');
+      prizes=Array(p).fill(0);
+      bdorPts=Array(p).fill(0);
+  } else {
+      const allOrdered=KO_STAGES.filter(s=>s.fixed||selectedKoStages.has(s.key)).map(s=>s.key);
+      stages=allOrdered.length>=2?allOrdered:['winner','finalist'];
+      prizes=Array(stages.length).fill(0);
+      bdorPts=Array(stages.length).fill(0);
+  }
+  D.tournaments.push({id:uid(),name:n,type,stages,prizes,bdorPts,winners:[]});
+  save();document.getElementById('newTournName').value='';closeModal();renderTourn();toast('🏆 Created!','green');
+}
+
+function delTourn(id){
+  const t=D.tournaments.find(x=>x.id===id);
+  if(confirm(`Delete "${t.name}" and all its winners?`)){
+    D.tournaments=D.tournaments.filter(x=>x.id!==id);
+    D.applied=D.applied.filter(a=>a!==id);
+    D.ballonDor.forEach(p => {if(p.tournaments && p.tournaments[id]) delete p.tournaments[id];});
+    save();showTournList();renderTourn();
+  }
+}
+
+let tournDetailTab='winners';
+function openTournDetail(id){document.getElementById('tourn-list-view').style.display='none';document.getElementById('tourn-detail-view').classList.add('active');tournDetailTab='winners';expandedWinnerTeam=null;renderTournDetailContent(id);}
+function renderTournDetailContent(id){
+  const p=document.getElementById('tourn-detail-view'),t=D.tournaments.find(x=>x.id===id);
+  const ap=isApplied(t.id),labels=getPositionLabels(t),typeBadge=t.type==='knockout'?'<span class="badge badge-purple">⚔️ Knockout</span>':'<span class="badge badge-blue">🏟️ League</span>';
+  p.innerHTML=`<button class="back-btn" onclick="showTournList();renderTourn();">← Back</button>
+  <div class="card stat-card"><h3 style="font-size:1.15rem;margin-bottom:4px;">🏆 ${esc(t.name)}</h3><div style="margin-top:6px;">${typeBadge}${ap?'<span class="badge badge-green" style="margin-left:4px;">✅ Applied</span>':''}</div></div>
+  <div class="sub-tabs">
+      <button class="sub-tab ${tournDetailTab==='winners'?'active':''}" onclick="tournDetailTab='winners';expandedWinnerTeam=null;renderTournDetailContent('${t.id}')">🏆 Winners</button>
+      <button class="sub-tab ${tournDetailTab==='prizes'?'active':''}" onclick="tournDetailTab='prizes';renderTournDetailContent('${t.id}')">💰 Prizes</button>
+      <button class="sub-tab ${tournDetailTab==='points'?'active':''}" onclick="tournDetailTab='points';renderTournDetailContent('${t.id}')">🥇 Pts</button>
+  </div>
+  <div id="tourn-detail-sub"></div>
+  <div style="display:flex;gap:8px;margin-top:16px;">${ap?`<button class="btn btn-warning" style="flex:1;" onclick="doResetT('${t.id}')">🔄 Reset Cycle</button>`:''}<button class="btn btn-danger" style="flex:1;" onclick="delTourn('${t.id}')">🗑️ Delete</button></div>`;
+  const sub=document.getElementById('tourn-detail-sub');
+  
+  if(tournDetailTab==='prizes'){
+    sub.innerHTML=`<div class="card"><h3 style="font-size:0.95rem;margin-bottom:12px;">💰 Prize Structure</h3>
+    ${labels.map((lb,i)=>`<div class="prize-row"><div class="pos-badge">${esc(lb)}</div><input class="input pi" type="number" value="${t.prizes[i]}" data-idx="${i}"><span style="color:var(--text2);font-size:0.78rem;min-width:24px;">€M</span></div>`).join('')}
+    <button class="btn btn-primary btn-block" style="margin-top:10px;" onclick="savePrizesInline('${t.id}')">💾 Save Prizes</button></div>`;
+  } else if(tournDetailTab==='points') {
+    sub.innerHTML=`<div class="card"><h3 style="font-size:0.95rem;margin-bottom:12px;">🥇 Ballon d'Or Points</h3>
+    <div class="stage-note">Set the B.d'Or points awarded for each finishing position.</div>
+    ${labels.map((lb,i)=>`<div class="prize-row"><div class="pos-badge">${esc(lb)}</div><input class="input bdor-pi" type="number" value="${t.bdorPts[i]||0}" data-idx="${i}"><span style="color:var(--text2);font-size:0.78rem;min-width:24px;">Pts</span></div>`).join('')}
+    <button class="btn btn-primary btn-block" style="margin-top:10px;" onclick="saveTournBdorPts('${t.id}')">💾 Save Points</button></div>`;
+  } else {
+    const winners=t.winners||[],grouped={};
+    winners.forEach(w=>{if(!grouped[w.teamId])grouped[w.teamId]={name:w.teamName,wins:[]};grouped[w.teamId].wins.push(w);});
+    const teamEntries=Object.entries(grouped).sort((a,b)=>b[1].wins.length-a[1].wins.length);
+    let whtml=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h3 style="font-size:0.95rem;">🏆 Winners</h3><button class="btn btn-primary btn-sm" onclick="openAddWinner('${t.id}')">+ Add Winner</button></div>`;
+    if(!teamEntries.length)whtml+='<p style="color:var(--text2);text-align:center;padding:12px;">No winners recorded yet</p>';
+    else{
+      teamEntries.forEach(([teamId,data])=>{
+        const isExpanded=expandedWinnerTeam===teamId,years=data.wins.sort((a,b)=>b.year-a.year);
+        whtml+=`<div class="winner-card" onclick="toggleWinnerExpand('${teamId}','${t.id}')"><div class="wc-info"><span class="wc-name">${esc(data.name)}</span><span class="wc-count">× ${data.wins.length}</span></div><span style="color:var(--text2);font-size:0.8rem;">${isExpanded?'▼':'›'}</span></div>`;
+        if(isExpanded)whtml+=`<div class="winner-year-list">${years.map(w=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);"><span>🏆 ${esc(t.name)} ${w.year}</span><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();removeWinner('${t.id}','${w.id}')">✕</button></div>`).join('')}</div>`;
+      });
+    }
+    whtml+='</div>';sub.innerHTML=whtml;
+  }
+}
+
+function toggleWinnerExpand(teamId,tournId){expandedWinnerTeam=expandedWinnerTeam===teamId?null:teamId;renderTournDetailContent(tournId);}
+function savePrizesInline(id){const ins=document.querySelectorAll('#tourn-detail-sub .pi'),t=D.tournaments.find(x=>x.id===id);t.prizes=Array.from(ins).map(i=>parseFloat(i.value)||0);save();toast('✅ Prizes saved!','green');}
+function saveTournBdorPts(id){const ins=document.querySelectorAll('#tourn-detail-sub .bdor-pi'),t=D.tournaments.find(x=>x.id===id);t.bdorPts=Array.from(ins).map(i=>parseFloat(i.value)||0);save();toast('✅ Points saved!','green');}
+
+function openAddWinner(tournId){
+  if(!D.teams.length)return alert("Add teams first");
+  const t=D.tournaments.find(x=>x.id===tournId);
+  document.getElementById('addWinnerInfo').textContent=t.name;
+  document.getElementById('winnerTournId').value=tournId;
+  document.getElementById('winnerTeamSel').innerHTML=D.teams.map(tm=>`<option value="${tm.id}">${esc(tm.name)}</option>`).join('');
+  document.getElementById('winnerYear').value=D.year;
+  openModal('addWinner');
+}
+function addWinner(){
+  const tournId=document.getElementById('winnerTournId').value,teamId=document.getElementById('winnerTeamSel').value,year=document.getElementById('winnerYear').value;
+  if(!teamId)return alert('Select a team');if(!year)return alert('Enter year');
+  const t=D.tournaments.find(x=>x.id===tournId),team=D.teams.find(x=>x.id===teamId);
+  if(!t.winners)t.winners=[];
+  if(t.winners.find(w=>w.teamId===teamId&&w.year==year))return alert(`${team.name} already won ${t.name} in ${year}`);
+  t.winners.push({id:uid(),teamId,teamName:team.name,year:Number(year)});
+  save();closeModal();renderTournDetailContent(tournId);toast('🏆 Winner added!','green');
+}
+function removeWinner(tournId,winnerId){if(!confirm('Remove this winner?'))return;const t=D.tournaments.find(x=>x.id===tournId);t.winners=t.winners.filter(w=>w.id!==winnerId);save();renderTournDetailContent(tournId);}
+function doResetT(id){if(!confirm('Reset this cycle?'))return;const idx=D.applied.indexOf(id);if(idx!==-1)D.applied.splice(idx,1);save();renderTournDetailContent(id);toast('🔄 Reset!','blue');}
+
+function openCompletedTournament(){
+  if(!D.tournaments.length)return alert('No tournaments');if(!D.teams.length)return alert('No teams');
+  const sel=document.getElementById('selTournament');
+  sel.innerHTML='<option value="">-- Select Tournament --</option>'+D.tournaments.map(t=>{const ap=isApplied(t.id);return`<option value="${t.id}" ${ap?'disabled':''}>${esc(t.name)} (${t.type==='knockout'?'KO':'League'})${ap?' — Applied':''}</option>`;}).join('');
+  document.getElementById('assignContainer').innerHTML='';openModal('completeTournament');
+}
+function loadAssignment(){
+  const tid=document.getElementById('selTournament').value,c=document.getElementById('assignContainer');
+  if(!tid){c.innerHTML='';return;}
+  const t=D.tournaments.find(x=>x.id===tid),labels=getPositionLabels(t);
+  const opts='<option value="-1">-- Not Placed --</option>'+labels.map((lb,i)=>`<option value="${i}">${lb} (€${fm(t.prizes[i])}M)</option>`).join('');
+  let note='';if(t.type==='knockout')note='<div class="stage-note">Winner & Finalist: 1 team only. Other stages: multiple teams.</div>';
+  c.innerHTML=note+D.teams.map(team=>`<div class="assign-row"><span class="tn">${esc(team.name)}</span><select class="input" data-tid="${team.id}">${opts}</select></div>`).join('');
+}
+function applyResults(){
+  const tid=document.getElementById('selTournament').value;if(!tid)return alert('Select tournament');if(isApplied(tid))return alert('Already applied');
+  const t=D.tournaments.find(x=>x.id===tid),sels=document.querySelectorAll('#assignContainer select');
+  const assignments=[];sels.forEach(s=>{const p=parseInt(s.value);if(p>=0)assignments.push({teamId:s.dataset.tid,pos:p});});
+  if(!assignments.length)return alert('Assign at least one position');
+  if(t.type==='knockout'&&t.stages){
+    const uniqueKeys=['winner','finalist'];
+    for(let i=0;i<t.stages.length;i++){if(uniqueKeys.includes(t.stages[i])){const count=assignments.filter(a=>a.pos===i).length;if(count>1)return alert(`"${getStageLabel(t.stages[i])}" can only have 1 team!`);}}
+  } else {const allPos=assignments.map(a=>a.pos);if(allPos.filter((p,i)=>allPos.indexOf(p)!==i).length)return alert('Duplicate positions!');}
+  assignments.forEach(a=>{const tm=D.teams.find(x=>x.id===a.teamId);const pr=t.prizes[a.pos];if(pr>0)tm.balance=Number(tm.balance)+Number(pr);});
+  D.applied.push(tid);save();closeModal();renderTeams();toast('🎉 Results applied!','green');
+}
+
+function doSeasonComplete(){
+  if(!D.teams.length)return alert('No teams');
+  if(!confirm('End season and advance to next year?')) return;
+  
+  // 1. Logic
+  D.teams.forEach(t=>{
+      const d=Number(t.debt||0), int=Math.round(d*15)/100;
+      if(int>0) t.debt=d+int;
+      t.balance = Number(t.balance) - 120 - int;
+  });
+
+  D.loans.forEach(L => {
+    const fromT = D.teams.find(x=>x.id === L.fromId);
+    const toT = D.teams.find(x=>x.id === L.toId);
+    if(fromT && toT && L.fee > 0) {
+      fromT.balance = Number(fromT.balance) + L.fee;
+      toT.balance = Number(toT.balance) - L.fee;
+    }
+  });
+
+  const salaryBills = {};
+  D.salaries.forEach(s => {
+      if(!salaryBills[s.teamId]) salaryBills[s.teamId] = 0;
+      salaryBills[s.teamId] += s.wage;
+      if(s.yearsLeft > 0) s.yearsLeft--;
+  });
+
+  for (const [tId, bill] of Object.entries(salaryBills)) {
+      const t = D.teams.find(x => x.id === tId);
+      if (t) {
+          t.balance -= bill;
+          D.transfers.push({
+              id: uid(), type: 'salary_bill', player: 'Annual Salary Bill',
+              fromId: t.id, toId: 'BANK', fromName: t.name, toName: '🏦 Bank',
+              amount: bill, date: new Date().toISOString()
+          });
+      }
+  }
+
+  D.salaries = D.salaries.filter(s => s.yearsLeft !== 0);
+  D.applied=[];
+  D.ballonDor=[]; 
+  D.year++;
+  
+  save();
+  D.teams.forEach(t=>autoLoan(t));
+  save();
+  updateHeaderYear();
+  renderTeams();
+  toast(`📅 Season completed! Advanced to Yr ${D.year}`,'green');
+}
+
+// === OVERVIEW TABLE ===
+function renderOverview(){
+  const sorted=[...D.teams].sort((a,b)=>Number(b.balance)-Number(a.balance)),tb=document.getElementById('overview-tbody');
+  if(!sorted.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:24px;">No teams</td></tr>';return;}
+  tb.innerHTML=sorted.map((t,i)=>{const d=Number(t.debt||0),trophies=getTeamTrophies(t.id);
+    return`<tr><td style="font-weight:700;color:var(--text2);">${i+1}</td><td style="font-weight:600;">${esc(t.name)}</td><td class="${bc(t.balance)}" style="font-weight:700;">€${fm(t.balance)}M</td><td class="${d>0?'debt-col':''}" style="font-size:0.78rem;">${d>0?'€'+fm(d)+'M':'—'}</td><td>${trophies.length}</td><td><span class="badge ${bgc(t.balance)}">${st(t.balance)}</span></td></tr>`;}).join('');
+}
+
+// === INTERNATIONAL ===
+function renderIntl(){document.getElementById('intl-container').innerHTML=INTL.map(t=>{const c=(D.intl[t]||[]).length;return`<div class="intl-team-card" onclick="openIntlD('${esc(t)}')"><div class="intl-team-inner"><h3>${t}</h3><span style="font-size:0.78rem;color:var(--text2);">🏆 ${c}</span></div></div>`;}).join('');}
+function showIntlList(){document.getElementById('intl-list-view').style.display='block';document.getElementById('intl-detail-view').classList.remove('active');}
+function openIntlD(n){document.getElementById('intl-list-view').style.display='none';const p=document.getElementById('intl-detail-view');p.classList.add('active');const trs=D.intl[n]||[];p.innerHTML=`<button class="back-btn" onclick="showIntlList();renderIntl();">← Back</button><div class="card stat-card"><h3 style="font-size:1.15rem;margin-bottom:4px;">${n}</h3><div style="font-size:0.85rem;color:var(--text2);">🏆 ${trs.length} ${trs.length===1?'trophy':'trophies'}</div></div><button class="btn btn-primary btn-block" onclick="openIntlTM('${esc(n)}')" style="margin-bottom:12px;">+ Add Trophy</button><div class="card"><h3 style="font-size:0.9rem;margin-bottom:10px;">🏆 Trophies</h3>${!trs.length?'<p style="color:var(--text2);text-align:center;padding:12px;">No trophies</p>':trs.map(tr=>`<div class="trophy-item"><span>🏆 <strong>${esc(tr.name)}</strong> (${tr.year})</span><button class="btn btn-danger btn-sm" onclick="rmIntlT('${esc(n)}','${tr.id}')">✕</button></div>`).join('')}</div>`;}
+function openIntlTM(n){document.getElementById('intlTrophyInfo').textContent=n;document.getElementById('intlTrophyTeam').value=n;document.getElementById('intlTrophyName').value='';document.getElementById('intlTrophyYear').value=D.year;openModal('intlTrophy');}
+function addIntlTrophy(){const t=document.getElementById('intlTrophyTeam').value,n=document.getElementById('intlTrophyName').value.trim(),y=document.getElementById('intlTrophyYear').value;if(!n)return alert('Enter name');if(!y)return alert('Enter year');if(!D.intl[t])D.intl[t]=[];D.intl[t].push({id:uid(),name:n,year:y});save();closeModal();openIntlD(t);toast('🏆 Added!','green');}
+function rmIntlT(t,id){if(!confirm('Remove?'))return;D.intl[t]=D.intl[t].filter(x=>x.id!==id);save();openIntlD(t);}
+
+
+// ================= BALLON D'OR =================
+
+function popBdorSettings() {
+  document.getElementById('setBdorGoal').value = D.bdorSettings.goal;
+  document.getElementById('setBdorAssist').value = D.bdorSettings.assist;
+  document.getElementById('setBdorCS').value = D.bdorSettings.cs;
+}
+
+function saveBdorSettings() {
+  D.bdorSettings.goal = parseInt(document.getElementById('setBdorGoal').value) || 0;
+  D.bdorSettings.assist = parseInt(document.getElementById('setBdorAssist').value) || 0;
+  D.bdorSettings.cs = parseInt(document.getElementById('setBdorCS').value) || 0;
+  save();
+  closeModal();
+  renderBdor();
+  toast('⚙️ Settings Saved!', 'green');
+}
+
+function setBdorTab(tab){
+    bdorTab = tab;
+    document.getElementById('btn-bdor-ranking').classList.toggle('active', tab === 'ranking');
+    document.getElementById('btn-bdor-winners').classList.toggle('active', tab === 'winners');
+    document.getElementById('bdor-ranking-view').style.display = tab === 'ranking' ? 'block' : 'none';
+    document.getElementById('bdor-winners-view').style.display = tab === 'winners' ? 'block' : 'none';
+    const btn = document.getElementById('bdor-header-btn');
+    if(tab === 'ranking'){
+        btn.textContent = '+ Add Player'; btn.onclick = openAddBdor; renderBdor();
+    } else {
+        btn.textContent = '+ Add Winner'; btn.onclick = openAddBdorWinner; renderBdorWinners();
+    }
+}
+
+function getBdorPoints(p){
+  let pts = (p.goals||0) * D.bdorSettings.goal + (p.assists||0) * D.bdorSettings.assist + (p.cs||0) * D.bdorSettings.cs + (p.bonus||0);
+  if(p.tournaments){
+    for(const [tId, tData] of Object.entries(p.tournaments)){
+      if(tData.status === 'completed' && tData.position !== null && tData.position !== undefined){
+        const tourn = D.tournaments.find(x=>x.id === tId);
+        if(tourn && tourn.bdorPts && tourn.bdorPts[tData.position]) pts += Number(tourn.bdorPts[tData.position]);
+      }
+    }
+  }
+  return pts;
+}
+
+function renderBdor(){
+  const tb = document.getElementById('bdor-tbody');
+  if(!D.ballonDor || !D.ballonDor.length){
+    tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text2);padding:24px;">No players tracked yet</td></tr>';
+    return;
+  }
+  const sorted = [...D.ballonDor].sort((a,b) => getBdorPoints(b) - getBdorPoints(a));
+  tb.innerHTML = sorted.map((p, i) => {
+    const pts = getBdorPoints(p);
+    const team = D.teams.find(t => t.id === p.teamId);
+    const rankClass = i < 3 ? `bdor-rank-${i+1}` : '';
+    return `<tr class="${rankClass}">
+      <td class="rnk" style="text-align:center;">${i+1}</td>
+      <td>
+        <div style="font-weight:700;">${esc(p.name)}</div>
+        <div class="bdor-stat-sub">${team ? esc(team.name) : '???'} • ${p.goals||0}G ${p.assists||0}A ${p.cs||0}CS ${p.bonus?`+${p.bonus}B`:''}</div>
+      </td>
+      <td class="pts-badge">${pts}</td>
+      <td style="text-align:right;"><button class="btn btn-sm btn-ghost" onclick="openEditBdor('${p.id}')">⚙️</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderBdorTournInputs(){
+  let html = '<h4 style="margin:16px 0 8px;font-size:0.85rem;border-bottom:1px solid var(--border);padding-bottom:4px;">Tournaments</h4>';
+  if(!D.tournaments.length) html += '<div style="color:var(--text2);font-size:0.8rem;">No tournaments created yet.</div>';
+  else {
+      D.tournaments.forEach(t => {
+          const labels = getPositionLabels(t);
+          let posOptions = labels.map((lb, i) => `<option value="${i}">${esc(lb)} (${t.bdorPts[i]||0} pts)</option>`).join('');
+          html += `<div class="bdor-tourn-row">
+              <div class="bdor-tourn-title">${esc(t.name)}</div>
+              <div style="display:flex;gap:6px;">
+                  <select class="input bdor-t-status" data-tid="${t.id}" style="flex:1;padding:8px;" onchange="toggleBdorPos(this, '${t.id}')">
+                      <option value="not_happened">Not Happened</option>
+                      <option value="not_this_year">Not This Year</option>
+                      <option value="completed">Completed</option>
+                  </select>
+                  <select class="input bdor-t-pos" id="bdor-pos-${t.id}" style="flex:1;padding:8px;display:none;">${posOptions}</select>
+              </div>
+          </div>`;
+      });
+  }
+  document.getElementById('bdor-tournaments-container').innerHTML = html;
+}
+
+function toggleBdorPos(sel, tid){
+  const posSel = document.getElementById(`bdor-pos-${tid}`);
+  posSel.style.display = (sel.value === 'completed') ? 'block' : 'none';
+}
+
+function openAddBdor(){
+  if(!D.teams.length) return alert('Add a team first');
+  document.getElementById('bdorId').value = '';
+  document.getElementById('bdorName').value = '';
+  document.getElementById('bdorTeam').innerHTML = D.teams.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+  document.getElementById('bdorGoals').value = '0';
+  document.getElementById('bdorAssists').value = '0';
+  document.getElementById('bdorCS').value = '0';
+  document.getElementById('bdorBonus').value = '0';
+  document.getElementById('bdorModalTitle').textContent = "🥇 Add Player Stats";
+  renderBdorTournInputs();
+  let actions = document.querySelector('#modal-bdor-player .modal-actions');
+  actions.innerHTML = `<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveBdor()">Save</button>`;
+  openModal('bdor-player');
+}
+
+function openEditBdor(id){
+  const p = D.ballonDor.find(x => x.id === id);
+  if(!p) return;
+  document.getElementById('bdorId').value = p.id;
+  document.getElementById('bdorName').value = p.name;
+  document.getElementById('bdorTeam').innerHTML = D.teams.map(t => `<option value="${t.id}" ${t.id===p.teamId?'selected':''}>${esc(t.name)}</option>`).join('');
+  document.getElementById('bdorGoals').value = p.goals || 0;
+  document.getElementById('bdorAssists').value = p.assists || 0;
+  document.getElementById('bdorCS').value = p.cs || 0;
+  document.getElementById('bdorBonus').value = p.bonus || 0;
+  document.getElementById('bdorModalTitle').textContent = "⚙️ Edit Player Stats";
+  renderBdorTournInputs();
+  if(p.tournaments){
+    for(const [tid, val] of Object.entries(p.tournaments)){
+      const statSel = document.querySelector(`.bdor-t-status[data-tid="${tid}"]`);
+      const posSel = document.getElementById(`bdor-pos-${tid}`);
+      if(statSel){
+        statSel.value = val.status || 'not_happened';
+        if(val.status === 'completed' && val.position !== null && posSel) posSel.value = val.position;
+        toggleBdorPos(statSel, tid);
+      }
+    }
+  }
+  let actions = document.querySelector('#modal-bdor-player .modal-actions');
+  actions.innerHTML = `<button class="btn btn-danger" style="flex:0 0 40px;padding:0;" onclick="deleteBdor('${p.id}')">🗑️</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveBdor()">Save</button>`;
+  openModal('bdor-player');
+}
+
+function saveBdor(){
+  const id = document.getElementById('bdorId').value || uid();
+  const name = document.getElementById('bdorName').value.trim();
+  const teamId = document.getElementById('bdorTeam').value;
+  if(!name) return alert('Enter player name');
+
+  const tournaments = {};
+  document.querySelectorAll('.bdor-t-status').forEach(sel => {
+    const tid = sel.dataset.tid, status = sel.value;
+    tournaments[tid] = { status: status, position: status === 'completed' ? parseInt(document.getElementById(`bdor-pos-${tid}`).value) : null };
+  });
+
+  const player = { 
+    id, name, teamId, 
+    goals: parseInt(document.getElementById('bdorGoals').value) || 0,
+    assists: parseInt(document.getElementById('bdorAssists').value) || 0,
+    cs: parseInt(document.getElementById('bdorCS').value) || 0,
+    bonus: parseInt(document.getElementById('bdorBonus').value) || 0,
+    tournaments 
+  };
+
+  const idx = D.ballonDor.findIndex(p => p.id === id);
+  if(idx >= 0) D.ballonDor[idx] = player; else D.ballonDor.push(player);
+  save(); closeModal(); renderBdor(); toast('✅ Saved!', 'green');
+}
+
+function deleteBdor(id){
+  if(confirm('Delete player?')){ D.ballonDor = D.ballonDor.filter(p => p.id !== id); save(); closeModal(); renderBdor(); toast('🗑️ Deleted', 'red'); }
+}
+
+function renderBdorWinners(){
+  const c = document.getElementById('bdor-winners-container');
+  if(!D.bdorWinners.length){ c.innerHTML = '<div class="empty-state"><div class="emoji">🥇</div><p>No winners</p></div>'; return; }
+  const grouped = {};
+  D.bdorWinners.forEach(w => {
+      const key = w.playerName.toLowerCase().trim();
+      if(!grouped[key]) grouped[key] = { name: w.playerName, wins: [] };
+      grouped[key].wins.push(w);
+  });
+  const sorted = Object.values(grouped).sort((a,b) => b.wins.length - a.wins.length);
+  let html = '';
+  sorted.forEach(data => {
+      const groupKey = data.name.replace(/\s+/g, '-').toLowerCase();
+      const isExpanded = expandedBdorWinner === groupKey;
+      html += `<div class="winner-card" onclick="toggleBdorWinnerExpand('${groupKey}')"><div class="wc-info"><span class="wc-name">${esc(data.name)}</span><span class="wc-count">× ${data.wins.length}</span></div><span>${isExpanded?'▼':'›'}</span></div>`;
+      if(isExpanded) html += `<div class="winner-year-list">${data.wins.sort((a,b)=>b.year-a.year).map(w => `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);"><span>${w.year} — ${esc(w.teamName)}</span><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();removeBdorWinner('${w.id}')">✕</button></div>`).join('')}</div>`;
+  });
+  c.innerHTML = html;
+}
+
+function toggleBdorWinnerExpand(key){ expandedBdorWinner = expandedBdorWinner === key ? null : key; renderBdorWinners(); }
+
+function openAddBdorWinner(){
+  if(!D.teams.length) return alert("Add teams first");
+  document.getElementById('bdorWinnerName').value = '';
+  document.getElementById('bdorWinnerTeamSel').innerHTML = D.teams.map(tm=>`<option value="${tm.id}">${esc(tm.name)}</option>`).join('');
+  document.getElementById('bdorWinnerYear').value = D.year;
+  openModal('addBdorWinner');
+}
+
+function addBdorWinner(){
+  const name = document.getElementById('bdorWinnerName').value.trim(), teamId = document.getElementById('bdorWinnerTeamSel').value, year = document.getElementById('bdorWinnerYear').value;
+  if(!name || !teamId || !year) return alert('Check fields');
+  D.bdorWinners.push({id:uid(), playerName: name, teamId, teamName: D.teams.find(x=>x.id===teamId).name, year: Number(year)});
+  save(); closeModal(); renderBdorWinners(); toast('🥇 Winner added!','green');
+}
+
+function removeBdorWinner(id){
+    if(!confirm('Remove winner?')) return; D.bdorWinners = D.bdorWinners.filter(w=>w.id !== id); save(); renderBdorWinners();
+}
+
+load();renderTeams();
+</script>
+</body>
+</html>
