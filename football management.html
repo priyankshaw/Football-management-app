@@ -23,6 +23,7 @@ body{font-family:-apple-system,'Segoe UI',system-ui,Roboto,sans-serif;background
 header{display:flex;justify-content:space-between;align-items:center;padding:12px 2px 8px;}
 header h1{font-size:1.2rem;font-weight:800;}
 header h1 span{background:linear-gradient(135deg,var(--accent),#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+#header-quarter{display:block;font-size:0.8rem;font-weight:normal;color:var(--text2);margin-top:2px;margin-left:24px;}
 .save-btn{padding:8px 16px;border:none;background:linear-gradient(135deg,var(--green),#10b981);color:#fff;font-size:0.78rem;font-weight:700;border-radius:10px;cursor:pointer;box-shadow:0 2px 12px rgba(52,211,153,0.25);}
 .save-btn:active{transform:scale(0.95);}
 
@@ -163,13 +164,14 @@ tr:last-child td{border-bottom:none;}
 @media(min-width:500px){
   .modal{border-radius:20px;margin:auto;border-bottom:1px solid var(--border);}
   .modal-overlay{align-items:center;padding:16px;}
+  #header-quarter{display:inline-block;vertical-align:middle;margin-top:0;margin-left:6px;}
 }
 </style>
 </head>
 <body>
 <div id="toast" class="toast"></div>
 <div class="app">
-  <header><h1>⚽ <span>Football Finance</span> <span id="header-quarter" style="font-size:0.8rem; font-weight:normal; color:var(--text2); vertical-align:middle; margin-left:6px;"></span></h1><button class="save-btn" id="header-save-btn" onclick="saveData()">💾 Save</button></header>
+  <header><h1>⚽ <span>Football Finance</span> <span id="header-quarter"></span></h1><button class="save-btn" id="header-save-btn" onclick="saveData()">💾 Save</button></header>
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('teams')">🏟️ Teams</button>
     <button class="tab-btn" onclick="switchTab('tournaments')">🏆 Tourn</button>
@@ -308,6 +310,14 @@ tr:last-child td{border-bottom:none;}
 <div class="form-group"><label>Loan Fee per Season (€M)</label><input class="input" id="loanFee" type="number" placeholder="e.g. 10"></div>
 <div class="stage-note">This fee is transferred from the borrowing team to the lending team automatically upon "End Season".</div>
 <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="doPlayerLoan()">Confirm Loan</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modal-edit-loan"><div class="modal"><div class="modal-handle"></div><h3>✏️ Edit Loan Fee</h3>
+<p id="editLoanPlayerName" style="color:var(--text2);font-size:0.85rem;margin-bottom:12px;"></p>
+<input type="hidden" id="editLoanId">
+<input type="hidden" id="editLoanTeamId">
+<div class="form-group"><label>Loan Fee per Season (€M)</label><input class="input" id="editLoanFeeVal" type="number" step="0.1"></div>
+<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="savePlayerLoanFee()">Save Changes</button></div>
 </div></div>
 
 <div class="modal-overlay" id="modal-salary"><div class="modal"><div class="modal-handle"></div><h3>💸 Player Salary</h3>
@@ -831,7 +841,10 @@ function openLP(id){
      const fromT = D.teams.find(x=>x.id===L.fromId);
      h += `<div class="history-item" style="display:flex;justify-content:space-between;align-items:center;border-left:3px solid var(--accent);">
         <div><div><strong>${esc(L.player)}</strong></div><div style="font-size:0.7rem;color:var(--text2);">From ${fromT?esc(fromT.name):'Unknown'} · €${fm(L.fee)}M/season</div></div>
-        <button class="btn btn-ghost btn-sm" onclick="returnPlayerLoan('${L.id}', '${id}')">Return</button></div>`;
+        <div style="display:flex;gap:4px;">
+           <button class="btn btn-ghost btn-sm" onclick="editPlayerLoanFee('${L.id}', '${id}')">✏️</button>
+           <button class="btn btn-ghost btn-sm" onclick="returnPlayerLoan('${L.id}', '${id}')">Return</button>
+        </div></div>`;
   });
   h += `<h4 style="font-size:0.8rem;margin-top:16px;color:var(--text2);">⬆️ Loaned Out (Lending)</h4>`;
   if(!loansOut.length) h += `<div style="font-size:0.75rem;color:var(--text3);padding:4px 0;">No players loaned out</div>`;
@@ -839,7 +852,10 @@ function openLP(id){
      const toT = D.teams.find(x=>x.id===L.toId);
      h += `<div class="history-item" style="display:flex;justify-content:space-between;align-items:center;border-left:3px solid var(--yellow);">
         <div><div><strong>${esc(L.player)}</strong></div><div style="font-size:0.7rem;color:var(--text2);">At ${toT?esc(toT.name):'Unknown'} · +€${fm(L.fee)}M/season</div></div>
-        <button class="btn btn-ghost btn-sm" onclick="returnPlayerLoan('${L.id}', '${id}')">Recall</button></div>`;
+        <div style="display:flex;gap:4px;">
+           <button class="btn btn-ghost btn-sm" onclick="editPlayerLoanFee('${L.id}', '${id}')">✏️</button>
+           <button class="btn btn-ghost btn-sm" onclick="returnPlayerLoan('${L.id}', '${id}')">Recall</button>
+        </div></div>`;
   });
   h += `</div>`; document.getElementById('team-sub').innerHTML = h;
 }
@@ -884,6 +900,34 @@ function returnPlayerLoan(loanId, teamId){
     openDetail(teamId);
     setTimeout(()=>openLP(teamId), 50);
     toast('🔙 Player Returned','orange');
+}
+
+function editPlayerLoanFee(loanId, teamId) {
+    const loan = D.loans.find(x => x.id === loanId);
+    if (!loan) return alert('Loan not found');
+    document.getElementById('editLoanId').value = loanId;
+    document.getElementById('editLoanTeamId').value = teamId;
+    document.getElementById('editLoanPlayerName').textContent = `Editing loan for: ${loan.player}`;
+    document.getElementById('editLoanFeeVal').value = loan.fee;
+    openModal('edit-loan');
+}
+
+function savePlayerLoanFee() {
+    const loanId = document.getElementById('editLoanId').value;
+    const teamId = document.getElementById('editLoanTeamId').value;
+    const newFee = parseFloat(document.getElementById('editLoanFeeVal').value);
+    
+    if (isNaN(newFee) || newFee < 0) return alert('Enter a valid fee (0 or positive)');
+    
+    const loan = D.loans.find(x => x.id === loanId);
+    if (!loan) return alert('Loan not found');
+    
+    loan.fee = newFee;
+    save();
+    closeModal();
+    openDetail(teamId);
+    setTimeout(() => openLP(teamId), 50);
+    toast('🤝 Loan fee updated!', 'green');
 }
 
 
@@ -1525,40 +1569,4 @@ function renderBdorWinners(){
       const key = w.playerName.toLowerCase().trim();
       if(!grouped[key]) grouped[key] = { name: w.playerName, wins: [] };
       grouped[key].wins.push(w);
-  });
-  const sorted = Object.values(grouped).sort((a,b) => b.wins.length - a.wins.length);
-  let html = '';
-  sorted.forEach(data => {
-      const groupKey = data.name.replace(/\s+/g, '-').toLowerCase();
-      const isExpanded = expandedBdorWinner === groupKey;
-      html += `<div class="winner-card" onclick="toggleBdorWinnerExpand('${groupKey}')"><div class="wc-info"><span class="wc-name">${esc(data.name)}</span><span class="wc-count">× ${data.wins.length}</span></div><span>${isExpanded?'▼':'›'}</span></div>`;
-      if(isExpanded) html += `<div class="winner-year-list">${data.wins.sort((a,b)=>b.year-a.year).map(w => `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);"><span>${w.year} — ${esc(w.teamName)}</span><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();removeBdorWinner('${w.id}')">✕</button></div>`).join('')}</div>`;
-  });
-  c.innerHTML = html;
-}
-
-function toggleBdorWinnerExpand(key){ expandedBdorWinner = expandedBdorWinner === key ? null : key; renderBdorWinners(); }
-
-function openAddBdorWinner(){
-  if(!D.teams.length) return alert("Add teams first");
-  document.getElementById('bdorWinnerName').value = '';
-  document.getElementById('bdorWinnerTeamSel').innerHTML = D.teams.map(tm=>`<option value="${tm.id}">${esc(tm.name)}</option>`).join('');
-  document.getElementById('bdorWinnerYear').value = D.year;
-  openModal('addBdorWinner');
-}
-
-function addBdorWinner(){
-  const name = document.getElementById('bdorWinnerName').value.trim(), teamId = document.getElementById('bdorWinnerTeamSel').value, year = document.getElementById('bdorWinnerYear').value;
-  if(!name || !teamId || !year) return alert('Check fields');
-  D.bdorWinners.push({id:uid(), playerName: name, teamId, teamName: D.teams.find(x=>x.id===teamId).name, year: Number(year)});
-  save(); closeModal(); renderBdorWinners(); toast('🥇 Winner added!','green');
-}
-
-function removeBdorWinner(id){
-    if(!confirm('Remove winner?')) return; D.bdorWinners = D.bdorWinners.filter(w=>w.id !== id); save(); renderBdorWinners();
-}
-
-load();renderTeams();
-</script>
-</body>
-</html>
+  
